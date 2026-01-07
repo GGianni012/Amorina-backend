@@ -1,0 +1,25 @@
+{
+    "name": "amorina-modules",
+    "version": "1.0.0",
+    "description": "Modular reservation system for Amorina Club cinema",
+    "type": "module",
+    "scripts": {
+        "test": "vitest",
+        "build": "tsc",
+        "dev:scanner": "cd scanner-app && npm run dev"
+    },
+    "dependencies": {
+        "googleapis": "^140.0.0",
+        "mercadopago": "^2.0.0",
+        "qrcode": "^1.5.3",
+        "uuid": "^9.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/qrcode": "^1.5.5",
+        "@types/uuid": "^9.0.0",
+        "@vercel/node": "^3.0.0",
+        "typescript": "^5.0.0",
+        "vitest": "^1.0.0"
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "./dist",
+        "rootDir": "./",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "paths": {
+            "@core/*": [
+                "./core/*"
+            ],
+            "@sheets/*": [
+                "./google-sheets-service/*"
+            ],
+            "@mercadopago/*": [
+                "./mercadopago-service/*"
+            ],
+            "@reservations/*": [
+                "./reservations-service/*"
+            ],
+            "@qr/*": [
+                "./qr-service/*"
+            ],
+            "@auth/*": [
+                "./auth-service/*"
+            ]
+        }
+    },
+    "include": [
+        "core/**/*",
+        "google-sheets-service/**/*",
+        "mercadopago-service/**/*",
+        "reservations-service/**/*",
+        "qr-service/**/*",
+        "auth-service/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "scanner-app"
+    ]
+}

@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Aquilea 57 Staff</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --red: #d32f2f;
+            --red-light: #e53935;
+            --red-dark: #b71c1c;
+            --cream: #faf8f5;
+            --cream-dark: #f0ede8;
+            --black: #0a0a0a;
+            --black-soft: #1a1a1a;
+            --white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-muted: #666;
+            --success: #2e7d32;
+            --warning: #f9a825;
+            --danger: #c62828;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding-bottom: 100px;
+            font-size: 14px;
+            /* Subtle paper texture */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+
+        /* Header - Saul Bass style */
+        .header {
+            background: var(--black);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+            padding-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-bottom: 30px;
+                clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: auto;
+        }
+
+        .header-title {
+            line-height: 1;
+        }
+
+        .header-title h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: var(--white);
+        }
+
+        .header-title small {
+            font-size: 0.6rem;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-time {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            color: var(--red);
+            letter-spacing: 1px;
+        }
+
+        /* Date Picker */
+        .date-picker {
+            background: var(--black-soft);
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 4px 8px;
+            color: var(--white);
+            font-size: 0.7rem;
+        }
+
+        .date-picker::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        /* Bottom Navigation - Angular Saul Bass style */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--black);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 10px max(24px, env(safe-area-inset-bottom));
+            z-index: 100;
+            clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+            padding-top: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .nav-item {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            .nav-item svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 20px;
+            color: #888;
+            text-decoration: none;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--red);
+        }
+
+        .nav-item svg {
+            width: 22px;
+            height: 22px;
+            margin-bottom: 4px;
+            stroke-width: 1.5;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            padding: 20px 16px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Section Title - Saul Bass style */
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--black);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--red);
+            transform: skewX(-15deg);
+        }
+
+        /* Cards - Angular style */
+        .card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            border-radius: 0;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            box-shadow: 4px 4px 0 var(--black);
+            transition: all 0.15s;
+        }
+
+        .card:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--black);
+        }
+
+        .card.red-accent {
+            border-left: 6px solid var(--red);
+        }
+
+        /* Mesa Selector */
+        .mesa-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .mesa-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .screen {
+                padding: 16px 12px;
+            }
+        }
+
+        .mesa-btn {
+            aspect-ratio: 1;
+            background: var(--white);
+            border: 2px solid var(--black);
+            color: var(--black);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+        }
+
+        .mesa-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mesa-btn.active {
+            background: var(--red);
+            border-color: var(--red);
+            color: var(--white);
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        .mesa-btn.has-order {
+            background: var(--warning);
+            border-color: var(--black);
+        }
+
+        /* Category */
+        .category {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            color: var(--red);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            padding-left: 2px;
+            border-left: 3px solid var(--red);
+            padding-left: 10px;
+        }
+
+        /* Product Item */
+        .product {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 12px 14px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.1s;
+        }
+
+        .product.has-qty {
+            background: #fff5f5;
+            border-color: var(--red);
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .product-desc {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .product-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--black);
+            background: var(--white);
+            color: var(--black);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .qty-btn:active {
+            background: var(--red);
+            border-color: var(--red);
+            color: white;
+        }
+
+        .qty {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            min-width: 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .qty.has-qty {
+            color: var(--red);
+        }
+
+        /* Floating Order Bar */
+        .order-bar {
+            position: fixed;
+            bottom: 100px;
+            left: 16px;
+            right: 16px;
+            background: var(--red);
+            border: 3px solid var(--black);
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 5px 5px 0 var(--black);
+            transform: translateY(200px);
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50;
+        }
+
+        .order-bar.visible {
+            transform: translateY(0);
+        }
+
+        .order-bar-info {
+            color: var(--white);
+        }
+
+        .order-bar-info strong {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+
+        .order-bar button {
+            background: var(--white);
+            color: var(--black);
+            border: 2px solid var(--black);
+            padding: 10px 20px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .order-bar button:active {
+            transform: scale(0.95);
+        }
+
+        /* Order Cards */
+        .order-card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .order-mesa {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+
+        .order-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .order-badge {
+            padding: 3px 10px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            border: 2px solid var(--black);
+        }
+
+        .order-badge.pending {
+            background: var(--warning);
+        }
+
+        .order-items-list {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .order-actions button {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid var(--black);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .btn-paid {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        /* Manual Input */
+        .manual-input {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .manual-input label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .manual-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .manual-input-row {
+                flex-direction: column;
+            }
+
+            .manual-input button {
+                width: 100%;
+                padding: 16px;
+            }
+
+            .manual-input input {
+                width: 100%;
+                font-size: 1.8rem;
+            }
+        }
+
+        .manual-input input {
+            flex: 1;
+            background: var(--cream);
+            border: 2px solid var(--black);
+            padding: 12px 14px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 4px;
+            text-align: center;
+            text-transform: uppercase;
+            min-height: 54px;
+        }
+
+        .manual-input input::placeholder {
+            color: #ccc;
+            letter-spacing: 2px;
+        }
+
+        .manual-input button {
+            background: var(--red);
+            border: 2px solid var(--black);
+            color: var(--white);
+            padding: 12px 24px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Scanner */
+        .scanner-toggle {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 4px 4px 0 var(--black);
+            margin-bottom: 16px;
+        }
+
+        .scanner-toggle button {
+            background: var(--black);
+            border: none;
+            color: var(--white);
+            padding: 14px 28px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 80%;
+            min-height: 54px;
+        }
+
+        @media (max-width: 480px) {
+            .scanner-toggle button {
+                width: 100%;
+            }
+        }
+
+        .scanner-container {
+            background: var(--black);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        #qr-reader video {
+            width: 100%;
+        }
+
+        /* Function Panel */
+        .function-panel {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 16px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .function-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .function-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .function-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .stat {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            color: var(--red);
+            font-size: 1.1rem;
+        }
+
+        .reservation-list {
+            max-height: 280px;
+            overflow-y: auto;
+            border-top: 2px solid var(--black);
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .reservation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .reservation-name {
+            font-weight: 600;
+        }
+
+        .reservation-qty {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .reservation-status {
+            padding: 2px 8px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+        }
+
+        .reservation-status.valid {
+            background: #e8f5e9;
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .reservation-status.used {
+            background: #f5f5f5;
+            border-color: #999;
+            color: #999;
+        }
+
+        /* Scan Result */
+        .scan-result {
+            background: var(--white);
+            border: 3px solid var(--black);
+            padding: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+            box-shadow: 5px 5px 0 var(--black);
+        }
+
+        .scan-result.valid {
+            border-color: var(--success);
+            box-shadow: 5px 5px 0 var(--success);
+        }
+
+        .scan-result.error {
+            border-color: var(--danger);
+            box-shadow: 5px 5px 0 var(--danger);
+        }
+
+        .scan-result.used {
+            border-color: var(--warning);
+            box-shadow: 5px 5px 0 var(--warning);
+        }
+
+        .scan-result-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .scan-result-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .scan-result-info {
+            color: var(--text-muted);
+        }
+
+        .scan-result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .scan-result-actions button {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--black);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .btn-validate {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-scan-again {
+            background: var(--white);
+            color: var(--black);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #ddd;
+            border-top-color: var(--red);
+            border-radius: 0;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+            .mesa-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .product {
+                padding: 10px 12px;
+            }
+
+            .header-title h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <img src="logo.png" alt="Aquilea 57" class="header-logo">
+            <div class="header-title">
+                <h1>AQUILEA 57</h1>
+                <small>Staff Panel</small>
+            </div>
+        </div>
+        <div class="header-right">
+            <input type="date" class="date-picker" id="datePicker" title="Cambiar fecha">
+            <span class="header-time" id="currentTime">--:--</span>
+        </div>
+    </header>
+
+    <!-- Entradas Screen -->
+    <div id="screen-entradas" class="screen active">
+        <div class="section-title">VALIDAR ENTRADA</div>
+
+        <!-- Manual Code Input -->
+        <div class="manual-input">
+            <label>INGRESAR CÓDIGO MANUALMENTE</label>
+            <div class="manual-input-row">
+                <input type="text" id="manualCode" placeholder="ABC123" maxlength="6">
+                <button onclick="validateManualCode()">VALIDAR</button>
+            </div>
+        </div>
+
+        <!-- Scanner Toggle -->
+        <div class="scanner-toggle" id="scanner-toggle">
+            <button onclick="toggleScanner()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" />
+                </svg>
+                ABRIR CÁMARA
+            </button>
+        </div>
+
+        <div class="scanner-container" id="qr-reader" style="display: none;"></div>
+
+        <div id="scanResult" style="display: none;"></div>
+
+        <div class="function-panel" id="functionPanel">
+            <div class="loading">
+                <div class="spinner"></div>
+                Cargando función...
+            </div>
+        </div>
+    </div>
+
+    <!-- Comandas Screen -->
+    <div id="screen-comandas" class="screen">
+        <div class="section-title">SELECCIONAR MESA</div>
+        <div class="mesa-grid" id="mesaSelector"></div>
+
+        <div id="menuSection" style="display: none;">
+            <div class="category">
+                <div class="category-header">COCKTAILS</div>
+                <div class="product" data-id="hot-summer">
+                    <div>
+                        <div class="product-name">Hot Summer Nights</div>
+                        <div class="product-desc">Ramazzotti – Espumante – Pomelo</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('hot-summer', -1)">−</button><span class="qty"
+                            id="qty-hot-summer">0</span><button class="qty-btn"
+                            onclick="changeQty('hot-summer', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="vesper">
+                    <div>
+                        <div class="product-name">Vesper Martini</div>
+                        <div class="product-desc">Gin – Vodka – Lilet</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('vesper', -1)">−</button><span class="qty"
+                            id="qty-vesper">0</span><button class="qty-btn" onclick="changeQty('vesper', 1)">+</button>
+                    </div>
+                </div>
+                <div class="product" data-id="vigilante">
+                    <div>
+                        <div class="product-name">Vigilante</div>
+                        <div class="product-desc">Negroni – Membrillo – Queso</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('vigilante', -1)">−</button><span class="qty"
+                            id="qty-vigilante">0</span><button class="qty-btn"
+                            onclick="changeQty('vigilante', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="tonic">
+                    <div>
+                        <div class="product-name">Tonic</div>
+                        <div class="product-desc">Gin – Lima – Pimientos – Tónica</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('tonic', -1)">−</button><span class="qty" id="qty-tonic">0</span><button
+                            class="qty-btn" onclick="changeQty('tonic', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="soshun">
+                    <div>
+                        <div class="product-name">Sōshun</div>
+                        <div class="product-desc">Vodka – Cassis – Lima</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('soshun', -1)">−</button><span class="qty"
+                            id="qty-soshun">0</span><button class="qty-btn" onclick="changeQty('soshun', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header">VINOS</div>
+                <div class="product" data-id="vino-baja">
+                    <div>
+                        <div class="product-name">Vino gama baja</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('vino-baja', -1)">−</button><span class="qty"
+                            id="qty-vino-baja">0</span><button class="qty-btn"
+                            onclick="changeQty('vino-baja', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="vino-media">
+                    <div>
+                        <div class="product-name">Vino gama media</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('vino-media', -1)">−</button><span class="qty"
+                            id="qty-vino-media">0</span><button class="qty-btn"
+                            onclick="changeQty('vino-media', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="vino-alta">
+                    <div>
+                        <div class="product-name">Vino gama alta</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('vino-alta', -1)">−</button><span class="qty"
+                            id="qty-vino-alta">0</span><button class="qty-btn"
+                            onclick="changeQty('vino-alta', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="copa-vino">
+                    <div>
+                        <div class="product-name">Copa de vino</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('copa-vino', -1)">−</button><span class="qty"
+                            id="qty-copa-vino">0</span><button class="qty-btn"
+                            onclick="changeQty('copa-vino', 1)">+</button></div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header">CERVEZAS</div>
+                <div class="product" data-id="cerveza-baja">
+                    <div>
+                        <div class="product-name">Cerveza gama baja</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('cerveza-baja', -1)">−</button><span class="qty"
+                            id="qty-cerveza-baja">0</span><button class="qty-btn"
+                            onclick="changeQty('cerveza-baja', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="cerveza-media">
+                    <div>
+                        <div class="product-name">Cerveza gama media</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('cerveza-media', -1)">−</button><span class="qty"
+                            id="qty-cerveza-media">0</span><button class="qty-btn"
+                            onclick="changeQty('cerveza-media', 1)">+</button></div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header">SIN ALCOHOL</div>
+                <div class="product" data-id="limonada">
+                    <div>
+                        <div class="product-name">Limonada clásica</div>
+                        <div class="product-desc">Limón – Menta – Almíbar</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('limonada', -1)">−</button><span class="qty"
+                            id="qty-limonada">0</span><button class="qty-btn"
+                            onclick="changeQty('limonada', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="limonada-maracuya">
+                    <div>
+                        <div class="product-name">Limonada maracuyá</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('limonada-maracuya', -1)">−</button><span class="qty"
+                            id="qty-limonada-maracuya">0</span><button class="qty-btn"
+                            onclick="changeQty('limonada-maracuya', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="gaseosa">
+                    <div>
+                        <div class="product-name">Gaseosas</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('gaseosa', -1)">−</button><span class="qty"
+                            id="qty-gaseosa">0</span><button class="qty-btn"
+                            onclick="changeQty('gaseosa', 1)">+</button></div>
+                </div>
+            </div>
+
+            <div class="category">
+                <div class="category-header">COMIDAS</div>
+                <div class="product" data-id="mediterraneo">
+                    <div>
+                        <div class="product-name">Mediterráneo</div>
+                        <div class="product-desc">Jamón – queso – rúcula – tomates</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('mediterraneo', -1)">−</button><span class="qty"
+                            id="qty-mediterraneo">0</span><button class="qty-btn"
+                            onclick="changeQty('mediterraneo', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="pastron">
+                    <div>
+                        <div class="product-name">Pastrón</div>
+                        <div class="product-desc">Pastrón – queso – rúcula – mostaza</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('pastron', -1)">−</button><span class="qty"
+                            id="qty-pastron">0</span><button class="qty-btn"
+                            onclick="changeQty('pastron', 1)">+</button></div>
+                </div>
+                <div class="product" data-id="vegetariano">
+                    <div>
+                        <div class="product-name">Vegetariano</div>
+                        <div class="product-desc">Queso – tomates – palta/hummus</div>
+                    </div>
+                    <div class="product-controls"><button class="qty-btn"
+                            onclick="changeQty('vegetariano', -1)">−</button><span class="qty"
+                            id="qty-vegetariano">0</span><button class="qty-btn"
+                            onclick="changeQty('vegetariano', 1)">+</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pedidos Screen -->
+    <div id="screen-pedidos" class="screen">
+        <div class="section-title">PEDIDOS ACTIVOS</div>
+        <div id="activeOrders"></div>
+    </div>
+
+    <!-- Order Bar -->
+    <div class="order-bar" id="orderBar">
+        <div class="order-bar-info">
+            <strong>MESA <span id="barMesa">-</span></strong><br>
+            <span id="barItems">0 items</span>
+        </div>
+        <button onclick="sendOrder()">ENVIAR →</button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchScreen('entradas')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="8" width="18" height="12" rx="2" />
+                <path d="M7 8V6a2 2 0 012-2h6a2 2 0 012 2v2" />
+            </svg>
+            ENTRADAS
+        </div>
+        <div class="nav-item" onclick="switchScreen('comandas')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            COMANDAS
+        </div>
+        <div class="nav-item" onclick="switchScreen('pedidos')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+            </svg>
+            PEDIDOS
+        </div>
+    </nav>
+
+    <script>
+        const API_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co/functions/v1';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhempudHZyeGZ5eGxpbmt1aXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MjUwMDQsImV4cCI6MjA4MzIwMTAwNH0.otXE48RY5EWwjTXzDUvncLrJO7ujfU5RJTj6C--ouy4';
+        const API_HEADERS = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'apikey': SUPABASE_ANON_KEY
+        };
+        const DIAS = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+
+        let currentMesa = null;
+        let quantities = {};
+        let orders = JSON.parse(localStorage.getItem('aquilea-orders') || '[]');
+        let html5QrCode = null;
+        let lastScannedCode = null;
+        let selectedDate = new Date();
+        let scannerActive = false;
+
+        const products = {
+            'hot-summer': 'Hot Summer', 'vesper': 'Vesper', 'vigilante': 'Vigilante',
+            'tonic': 'Tonic', 'soshun': 'Sōshun', 'vino-baja': 'Vino baja',
+            'vino-media': 'Vino media', 'vino-alta': 'Vino alta', 'copa-vino': 'Copa vino',
+            'cerveza-baja': 'Cerveza baja', 'cerveza-media': 'Cerveza media',
+            'limonada': 'Limonada', 'limonada-maracuya': 'Limonada maracuyá',
+            'gaseosa': 'Gaseosa', 'mediterraneo': 'Mediterráneo',
+            'pastron': 'Pastrón', 'vegetariano': 'Vegetariano'
+        };
+
+        function init() {
+            const datePicker = document.getElementById('datePicker');
+            datePicker.value = formatDateForInput(selectedDate);
+            datePicker.addEventListener('change', (e) => {
+                selectedDate = new Date(e.target.value + 'T12:00:00');
+                loadCurrentFunction();
+            });
+
+            const mesaSelector = document.getElementById('mesaSelector');
+            for (let i = 1; i <= 15; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'mesa-btn';
+                btn.textContent = i;
+                btn.onclick = () => selectMesa(i);
+                btn.id = `mesa-${i}`;
+                mesaSelector.appendChild(btn);
+            }
+
+            updateTime();
+            setInterval(updateTime, 1000);
+            updateMesaIndicators();
+            renderOrders();
+            initScanner();
+            loadCurrentFunction();
+            setInterval(loadCurrentFunction, 30000);
+
+            document.getElementById('manualCode')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') validateManualCode();
+            });
+        }
+
+        function formatDateForInput(date) { return date.toISOString().split('T')[0]; }
+        function getSheetName(date) { const d = new Date(date); return `${DIAS[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`; }
+        function updateTime() { document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }); }
+
+        // Scanner
+        function initScanner() { html5QrCode = new Html5Qrcode("qr-reader"); }
+
+        function toggleScanner() {
+            if (scannerActive) { stopScanning(); } else { startScanning(); }
+        }
+
+        function startScanning() {
+            document.getElementById('qr-reader').style.display = 'block';
+            document.getElementById('scanner-toggle').style.display = 'none';
+
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, onScanSuccess, () => { })
+                .then(() => { scannerActive = true; })
+                .catch(err => {
+                    document.getElementById('qr-reader').innerHTML = `<div style="padding: 30px; text-align: center; color: #666;"><p>No se pudo acceder a la cámara</p><button onclick="stopScanning()" style="margin-top:12px;padding:10px 20px;background:#333;color:white;border:none;">Cancelar</button></div>`;
+                });
+        }
+
+        function stopScanning() {
+            if (html5QrCode && scannerActive) html5QrCode.stop().catch(() => { });
+            scannerActive = false;
+            document.getElementById('qr-reader').style.display = 'none';
+            document.getElementById('qr-reader').innerHTML = '';
+            document.getElementById('scanner-toggle').style.display = 'block';
+        }
+
+        function validateManualCode() {
+            const code = document.getElementById('manualCode').value.trim().toUpperCase();
+            if (code.length < 4) { alert('Ingresá al menos 4 caracteres'); return; }
+            validateTicketByCode(code);
+        }
+
+        async function validateTicketByCode(code) {
+            try {
+                const response = await fetch(`${API_URL}/tickets-use?t=${Date.now()}`, {
+                    method: 'POST', headers: API_HEADERS,
+                    body: JSON.stringify({ ticketCode: code, searchMode: true })
+                });
+                const data = await response.json();
+                if (data.status === 'VALID' || data.success) {
+                    const userName = data.message.split(': ')[1] || 'Usuario';
+                    const movieDisplay = data.movieInfo || 'Título no disponible';
+                    const info = { userName, movieTitle: movieDisplay };
+                    showScanResult('valid', '¡ENTRADA VÁLIDA!', `${userName}<br><span style="font-size:0.9em; color:var(--red); font-weight: bold;">${movieDisplay}</span>`, info, code);
+                    document.getElementById('manualCode').value = '';
+                    loadCurrentFunction();
+                } else if (data.status === 'ALREADY_USED') {
+                    showScanResult('used', 'YA FUE USADA', data.message);
+                } else {
+                    showScanResult('error', 'NO ENCONTRADO', data.message || 'Código no válido');
+                }
+            } catch { showScanResult('error', 'ERROR', 'No se pudo validar'); }
+        }
+
+        function onScanSuccess(decodedText) {
+            if (decodedText === lastScannedCode) return;
+            lastScannedCode = decodedText;
+            if (navigator.vibrate) navigator.vibrate(100);
+            const ticketInfo = decodeQR(decodedText);
+            if (!ticketInfo) { showScanResult('error', 'CÓDIGO NO VÁLIDO', 'Este QR no es de Aquilea'); return; }
+            validateTicket(decodedText, ticketInfo);
+        }
+
+        function decodeQR(encoded) {
+            try {
+                if (encoded.startsWith('AMO|')) {
+                    const parts = encoded.split('|');
+                    if (parts.length >= 6) return { ticketCode: parts[1], movieTitle: parts[2], showDateTime: parts[3], userName: parts[4], userEmail: parts[5] };
+                }
+                if (encoded.startsWith('AMO:')) {
+                    const parts = encoded.split(':');
+                    if (parts.length === 3) return JSON.parse(atob(parts[1]));
+                }
+                return null;
+            } catch { return null; }
+        }
+
+        async function validateTicket(rawCode, ticketInfo) {
+            try {
+                // Extract ticket code from QR payload for validation
+                const ticketCode = ticketInfo.ticketCode;
+
+                const response = await fetch(`${API_URL}/tickets-use?t=${Date.now()}`, {
+                    method: 'POST', headers: API_HEADERS,
+                    body: JSON.stringify({ ticketCode: ticketCode, searchMode: true })
+                });
+                const data = await response.json();
+                if (data.status === 'VALID' || data.success) {
+                    const info = {
+                        ...ticketInfo,
+                        movieTitle: data.movieInfo || ticketInfo.movieTitle
+                    };
+                    showScanResult('valid', '¡ENTRADA VÁLIDA!', `${info.userName}<br><span style="font-size:0.9em; color:var(--red); font-weight: bold;">${info.movieTitle}</span>`, info, ticketCode);
+                } else if (data.status === 'ALREADY_USED') {
+                    showScanResult('used', 'YA FUE USADA', data.message, ticketInfo);
+                } else {
+                    showScanResult('error', 'NO VÁLIDA', data.message || 'Error');
+                }
+            } catch { showScanResult('error', 'ERROR', 'No se pudo validar'); }
+        }
+
+        function showScanResult(status, title, message, ticketInfo = null, rawCode = null) {
+            const icons = { valid: '✓', error: '✕', used: '!' };
+            const resultDiv = document.getElementById('scanResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="scan-result ${status}">
+                    <div class="scan-result-icon">${icons[status]}</div>
+                    <div class="scan-result-title">${title}</div>
+                    <div class="scan-result-info">${message}</div>
+                    ${status === 'valid' && (ticketInfo || rawCode) ? `
+                        <div class="scan-result-actions">
+                            <button class="btn-validate" onclick="markAsUsed('${rawCode}')" style="background:var(--red); color:white; border:2px solid var(--black); padding:16px; font-family:'Bebas Neue',sans-serif; width:100%; font-size:1.2rem; cursor:pointer; margin-bottom:10px;">CONFIRMAR INGRESO</button>
+                            <button class="btn-scan-again" onclick="resetScanner()" style="background:white; color:var(--black); border:2px solid var(--black); padding:12px; font-family:'Bebas Neue',sans-serif; width:100%; font-size:1rem; cursor:pointer;">CANCELAR</button>
+                        </div>
+                    ` : `<div class="scan-result-actions"><button class="btn-scan-again" onclick="resetScanner()">VOLVER</button></div>`}
+                </div>
+            `;
+        }
+
+        async function markAsUsed(rawCode) {
+            try {
+                const response = await fetch(`${API_URL}/tickets-use?t=${Date.now()}`, {
+                    method: 'POST', headers: API_HEADERS,
+                    body: JSON.stringify({ ticketCode: rawCode })
+                });
+                const data = await response.json();
+                if (data.status === 'VALID' || data.success) {
+                    // Show success briefly with vibration
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+                    const detailInfo = data.detail ? `<br><small style="color:#666; font-size: 0.7em;">(${data.detail.sheet}, fila ${data.detail.row})</small>` : '';
+                    showScanResult('valid', '¡REGISTRADA!', `Entrada marcada como usada${detailInfo}`);
+                    loadCurrentFunction();
+                    // Auto-reset after 2 seconds for continuous scanning
+                    setTimeout(() => {
+                        resetScanner();
+                    }, 2000);
+                }
+                else if (data.status === 'ALREADY_USED') {
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    showScanResult('used', 'YA USADA', data.message);
+                }
+                else {
+                    showScanResult('error', 'ERROR', data.message);
+                }
+            } catch { showScanResult('error', 'ERROR', 'No se pudo registrar'); }
+        }
+
+        function resetScanner() {
+            document.getElementById('scanResult').style.display = 'none';
+            lastScannedCode = null;
+            document.getElementById('manualCode').value = '';
+        }
+
+        async function loadCurrentFunction() {
+            const panel = document.getElementById('functionPanel');
+            const sheetName = getSheetName(selectedDate);
+            try {
+                const response = await fetch(`${API_URL}/current-function?date=${formatDateForInput(selectedDate)}`);
+                const data = await response.json();
+                if (!data.currentFunction || data.functions.length === 0) {
+                    panel.innerHTML = `<div class="empty-state"><p><strong>${sheetName}</strong></p><p style="margin-top:8px;">No hay funciones programadas</p></div>`;
+                    return;
+                }
+                const func = data.currentFunction;
+                const reservations = func.reservations || [];
+                panel.innerHTML = `
+                    <div class="function-header">
+                        <div class="function-title">${func.title.replace('AMORINA - ', '')}</div>
+                        <div class="function-stats">
+                            <div class="stat"><span class="stat-value">${func.totalEntradas}</span> entradas</div>
+                            <div class="stat"><span class="stat-value">${func.usadas}</span> usadas</div>
+                        </div>
+                    </div>
+                    <div class="reservation-list">
+                        ${reservations.length === 0 ? '<p style="color:#999;text-align:center;padding:16px;">Sin reservas aún</p>' :
+                        reservations.map(r => `
+                                <div class="reservation-item">
+                                    <div><div class="reservation-name">${r.nombre}</div><div class="reservation-qty">${r.cantidad} entrada${r.cantidad > 1 ? 's' : ''}</div></div>
+                                    <span class="reservation-status ${r.estadoUso === 'USADO' ? 'used' : 'valid'}">${r.estadoUso === 'USADO' ? 'USADA' : 'VÁLIDA'}</span>
+                                </div>
+                            `).join('')
+                    }
+                    </div>
+                `;
+            } catch (err) { panel.innerHTML = `<p style="color:#999;text-align:center;padding:20px;">${sheetName}<br>Error cargando datos</p>`; }
+        }
+
+        // Mesa & Orders
+        function selectMesa(mesa) {
+            currentMesa = mesa; quantities = {};
+            document.querySelectorAll('.mesa-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`mesa-${mesa}`).classList.add('active');
+            document.getElementById('menuSection').style.display = 'block';
+            Object.keys(products).forEach(id => {
+                const qtyEl = document.getElementById(`qty-${id}`);
+                if (qtyEl) { qtyEl.textContent = '0'; qtyEl.classList.remove('has-qty'); }
+                document.querySelector(`[data-id="${id}"]`)?.classList.remove('has-qty');
+            });
+            updateOrderBar();
+        }
+
+        function changeQty(productId, delta) {
+            if (!currentMesa) return;
+            quantities[productId] = Math.max(0, (quantities[productId] || 0) + delta);
+            const qtyEl = document.getElementById(`qty-${productId}`);
+            qtyEl.textContent = quantities[productId];
+            qtyEl.classList.toggle('has-qty', quantities[productId] > 0);
+            document.querySelector(`[data-id="${productId}"]`)?.classList.toggle('has-qty', quantities[productId] > 0);
+            updateOrderBar();
+        }
+
+        function updateOrderBar() {
+            const bar = document.getElementById('orderBar');
+            const total = Object.values(quantities).reduce((a, b) => a + b, 0);
+            document.getElementById('barMesa').textContent = currentMesa;
+            document.getElementById('barItems').textContent = `${total} item${total !== 1 ? 's' : ''}`;
+            bar.classList.toggle('visible', total > 0);
+        }
+
+        function sendOrder() {
+            const items = Object.entries(quantities).filter(([_, qty]) => qty > 0).map(([id, qty]) => ({ id, qty, name: products[id] }));
+            if (items.length === 0) return;
+            orders.push({ id: Date.now(), mesa: currentMesa, items, time: new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }), status: 'pending' });
+            localStorage.setItem('aquilea-orders', JSON.stringify(orders));
+            quantities = {};
+            Object.keys(products).forEach(id => {
+                const qtyEl = document.getElementById(`qty-${id}`);
+                if (qtyEl) { qtyEl.textContent = '0'; qtyEl.classList.remove('has-qty'); }
+                document.querySelector(`[data-id="${id}"]`)?.classList.remove('has-qty');
+            });
+            updateOrderBar(); updateMesaIndicators(); renderOrders();
+            alert(`✓ Comanda enviada - Mesa ${currentMesa}`);
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('activeOrders');
+            const pending = orders.filter(o => o.status === 'pending');
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg><p>No hay pedidos activos</p></div>`;
+                return;
+            }
+            container.innerHTML = pending.map(o => `
+                <div class="order-card">
+                    <div class="order-header"><div><div class="order-mesa">MESA ${o.mesa}</div><div class="order-time">${o.time}</div></div><span class="order-badge pending">PENDIENTE</span></div>
+                    <div class="order-items-list">${o.items.map(i => `${i.qty}× ${i.name}`).join(', ')}</div>
+                    <div class="order-actions"><button class="btn-paid" onclick="markPaid(${o.id})">✓ PAGADO</button><button class="btn-delete" onclick="deleteOrder(${o.id})">✕</button></div>
+                </div>
+            `).join('');
+        }
+
+        function markPaid(id) { orders = orders.filter(o => o.id !== id); localStorage.setItem('aquilea-orders', JSON.stringify(orders)); renderOrders(); updateMesaIndicators(); }
+        function deleteOrder(id) { if (confirm('¿Eliminar?')) { orders = orders.filter(o => o.id !== id); localStorage.setItem('aquilea-orders', JSON.stringify(orders)); renderOrders(); updateMesaIndicators(); } }
+        function updateMesaIndicators() { document.querySelectorAll('.mesa-btn').forEach(btn => btn.classList.remove('has-order')); orders.filter(o => o.status === 'pending').forEach(o => { document.getElementById(`mesa-${o.mesa}`)?.classList.add('has-order'); }); }
+        function switchScreen(screen) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(`screen-${screen}`).classList.add('active'); event.currentTarget.classList.add('active'); }
+
+        init();
+    </script>
+</body>
+
+</html>

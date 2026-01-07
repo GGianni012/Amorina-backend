@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amorina Club - Demo de Reservas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #e91e63;
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --success: #4caf50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .movie-card {
+            background: var(--bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .movie-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(233, 30, 99, 0.3);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 1rem;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .movie-datetime {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #c2185b 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--success);
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h3 {
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-item {
+            padding: 0.75rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .result-item .label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .result-item .value {
+            font-weight: 600;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .qr-container canvas {
+            display: block;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+
+        .status-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .logs {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .log-entry.error {
+            color: #f44336;
+        }
+
+        .log-entry.success {
+            color: var(--success);
+        }
+
+        .config-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .config-section {
+                grid-template-columns: 1fr;
+            }
+
+            .result-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎬 Amorina Club - Demo de Reservas</h1>
+
+        <!-- Configuración -->
+        <div class="section">
+            <h2>⚙️ Configuración</h2>
+            <div class="config-section">
+                <div class="form-group">
+                    <label>URL de Supabase</label>
+                    <input type="text" id="supabaseUrl" value="https://iazjntvrxfyxlinkuiwx.supabase.co/functions/v1">
+                </div>
+                <div class="form-group">
+                    <label>URL del JSON de Cartelera</label>
+                    <input type="text" id="carteleraUrl"
+                        placeholder="URL del byshowtime.json o déjalo vacío para datos de ejemplo">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="loadCartelera()" style="margin-top:1rem">Cargar Cartelera</button>
+        </div>
+
+        <!-- Cartelera -->
+        <div class="section">
+            <h2>🎬 Cartelera</h2>
+            <div class="movies-grid" id="moviesGrid">
+                <p style="color: var(--text-secondary)">Cargando películas...</p>
+            </div>
+        </div>
+
+        <!-- Formulario de Reserva -->
+        <div class="section">
+            <h2>📝 Datos de Reserva</h2>
+            <div class="form-group">
+                <label>Película seleccionada</label>
+                <input type="text" id="selectedMovie" readonly placeholder="Seleccioná una película arriba">
+            </div>
+            <div class="config-section">
+                <div class="form-group">
+                    <label>Tu nombre</label>
+                    <input type="text" id="userName" placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label>Tu email</label>
+                    <input type="email" id="userEmail" placeholder="Ej: juan@email.com">
+                </div>
+            </div>
+            <button class="btn btn-primary" id="reserveBtn" onclick="makeReservation()" disabled>
+                Crear Reserva de Prueba
+            </button>
+        </div>
+
+        <!-- Resultado -->
+        <div class="section result" id="resultSection">
+            <h3>✅ ¡Reserva Creada!</h3>
+            <div class="result-info">
+                <div class="result-item">
+                    <div class="label">ID de Reserva</div>
+                    <div class="value" id="resId">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Código de Ticket</div>
+                    <div class="value" id="resTicketCode">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Google Sheets</div>
+                    <div class="value" id="resSheetsStatus">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="label">Película</div>
+                    <div class="value" id="resMovie">-</div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <p style="margin-bottom: 1rem; color: var(--text-secondary)">Código QR de la entrada:</p>
+                <div class="qr-container" id="qrContainer">
+                    <div id="qrCode"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="section">
+            <h2>📋 Logs</h2>
+            <div class="logs" id="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedShowtime = null;
+
+        // Sample data - using today's date for testing
+        const today = new Date().toISOString().split('T')[0]; // "2026-01-05"
+        const sampleMovies = [
+            {
+                title: "Invasión",
+                poster: "https://image.tmdb.org/t/p/w500/U4rFsDAJyt0MM9at7Tew3LURTl.jpg",
+                showtime: `${today}T15:00:00-03:00`,
+                director: "Hugo Santiago",
+                price: "5000"
+            },
+            {
+                title: "Casablanca",
+                poster: "https://image.tmdb.org/t/p/w500/a7EjycGNSYw6QqJqDooD9eQGZ4r.jpg",
+                showtime: `${today}T17:00:00-03:00`,
+                director: "Michael Curtiz",
+                price: "5000"
+            },
+            {
+                title: "Bastardos Sin Gloria",
+                poster: "https://image.tmdb.org/t/p/w500/dqu7nUtKTLdpM7DaJvD4zcSXhn1.jpg",
+                showtime: `${today}T19:00:00-03:00`,
+                director: "Quentin Tarantino",
+                price: "5000"
+            }
+        ];
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.insertBefore(entry, logs.firstChild);
+        }
+
+        function formatDateTime(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('es-AR', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function renderMovies(movies) {
+            const grid = document.getElementById('moviesGrid');
+            grid.innerHTML = '';
+
+            movies.forEach((movie, index) => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.onclick = () => selectMovie(movie, card);
+                card.innerHTML = `
+          <img class="movie-poster" src="${movie.poster}" alt="${movie.title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Poster'">
+          <div class="movie-info">
+            <div class="movie-title">${movie.title}</div>
+            <div class="movie-datetime">${formatDateTime(movie.showtime)}</div>
+            <div class="movie-datetime" style="margin-top:0.25rem">Dir: ${movie.director || 'N/A'}</div>
+          </div>
+        `;
+                grid.appendChild(card);
+            });
+
+            log(`Cargadas ${movies.length} películas`, 'success');
+        }
+
+        function selectMovie(movie, cardElement) {
+            // Remove selection from all cards
+            document.querySelectorAll('.movie-card').forEach(c => c.classList.remove('selected'));
+
+            // Select this card
+            cardElement.classList.add('selected');
+            selectedShowtime = movie;
+
+            // Update form
+            document.getElementById('selectedMovie').value = `${movie.title} - ${formatDateTime(movie.showtime)}`;
+            document.getElementById('reserveBtn').disabled = false;
+
+            log(`Seleccionada: ${movie.title}`);
+        }
+
+        async function loadCartelera() {
+            const url = document.getElementById('carteleraUrl').value.trim();
+
+            if (!url) {
+                log('Usando datos de ejemplo');
+                renderMovies(sampleMovies);
+                return;
+            }
+
+            try {
+                log(`Cargando cartelera desde: ${url}`);
+                const response = await fetch(url);
+                const movies = await response.json();
+                renderMovies(movies);
+            } catch (error) {
+                log(`Error cargando cartelera: ${error.message}`, 'error');
+                log('Usando datos de ejemplo como fallback');
+                renderMovies(sampleMovies);
+            }
+        }
+
+        async function makeReservation() {
+            if (!selectedShowtime) {
+                log('Seleccioná una película primero', 'error');
+                return;
+            }
+
+            const userName = document.getElementById('userName').value.trim();
+            const userEmail = document.getElementById('userEmail').value.trim();
+
+            if (!userName || !userEmail) {
+                log('Completá nombre y email', 'error');
+                return;
+            }
+
+            const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
+            const btn = document.getElementById('reserveBtn');
+
+            btn.disabled = true;
+            btn.textContent = 'Creando reserva...';
+
+            try {
+                log(`Enviando reserva para: ${selectedShowtime.title}`);
+
+                const response = await fetch(`${supabaseUrl}/test-reservation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        movieTitle: selectedShowtime.title,
+                        showDateTime: selectedShowtime.showtime,
+                        userName,
+                        userEmail,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error en la reserva');
+                }
+
+                log(`Reserva creada: ${data.reservationId}`, 'success');
+                log(`Código: ${data.ticketCode}`, 'success');
+                log(`Google Sheets: ${data.sheetsWritten ? 'OK' : 'Error'}`, data.sheetsWritten ? 'success' : 'error');
+
+                // Show result
+                document.getElementById('resId').textContent = data.reservationId;
+                document.getElementById('resTicketCode').textContent = data.ticketCode;
+                document.getElementById('resMovie').textContent = selectedShowtime.title;
+                document.getElementById('resSheetsStatus').innerHTML = data.sheetsWritten
+                    ? '<span class="status-badge status-success">Guardado</span>'
+                    : '<span class="status-badge status-error">Error</span>';
+
+                // Generate QR
+                const qrContainer = document.getElementById('qrCode');
+                qrContainer.innerHTML = ''; // Clear previous QR
+                new QRCode(qrContainer, {
+                    text: data.qrPayload,
+                    width: 200,
+                    height: 200,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                document.getElementById('resultSection').classList.add('show');
+
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Crear Reserva de Prueba';
+            }
+        }
+
+        // Load sample movies on start
+        window.onload = () => {
+            log('Demo iniciado');
+            renderMovies(sampleMovies);
+        };
+    </script>
+</body>
+
+</html>
