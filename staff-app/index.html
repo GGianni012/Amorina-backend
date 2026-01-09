@@ -827,6 +827,304 @@
                 font-size: 1.3rem;
             }
         }
+
+        /* ==================== MEDIA CONTROL PANEL ==================== */
+        .media-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .media-connection {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .media-connection.online {
+            background: rgba(46, 125, 50, 0.15);
+            color: var(--success);
+        }
+
+        .media-connection.offline {
+            background: rgba(198, 40, 40, 0.15);
+            color: var(--danger);
+        }
+
+        .media-connection .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .now-playing-card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 20px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .now-playing-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .now-playing-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .media-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .media-progress .time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-width: 35px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .media-progress input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .media-progress input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--red);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .media-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .media-btn {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--black);
+            background: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .media-btn:active {
+            background: var(--red);
+            color: white;
+        }
+
+        .media-btn.play {
+            width: 60px;
+            height: 60px;
+            background: var(--red);
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .volume-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .volume-row span {
+            font-size: 1.2rem;
+        }
+
+        .volume-row input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .volume-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--black);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-value {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .fullscreen-btn {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--black);
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 var(--red);
+        }
+
+        .add-media-card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 16px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .add-media-card label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .add-media-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-media-row input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--black);
+            font-size: 0.85rem;
+        }
+
+        .add-media-row button {
+            padding: 12px 16px;
+            border: 2px solid var(--black);
+            background: var(--red);
+            color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .queue-card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 16px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .queue-header h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .queue-clear {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border: 1px solid var(--black);
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .queue-list {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85rem;
+        }
+
+        .queue-item.current {
+            background: #fff5f5;
+            border-left: 3px solid var(--red);
+        }
+
+        .queue-item .num {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .queue-item .name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .queue-item .playing {
+            color: var(--red);
+        }
+
+        .media-settings {
+            background: var(--cream-dark);
+            border: 2px solid var(--black);
+            padding: 16px;
+        }
+
+        .media-settings label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .media-settings input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--black);
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .media-settings button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--black);
+            background: var(--success);
+            color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -1076,6 +1374,73 @@
         <div id="activeOrders"></div>
     </div>
 
+    <!-- Medios Screen -->
+    <div id="screen-medios" class="screen">
+        <div class="section-title">CONTROL DE MEDIOS</div>
+
+        <div class="media-panel">
+            <!-- Connection status -->
+            <div class="media-connection offline" id="vlcConnection">
+                <span class="dot"></span>
+                <span id="vlcConnectionText">Desconectado</span>
+            </div>
+
+            <!-- Now Playing -->
+            <div class="now-playing-card">
+                <div class="now-playing-label">AHORA SUENA</div>
+                <div class="now-playing-title" id="vlcTitle">Sin reproducción</div>
+
+                <div class="media-progress">
+                    <span class="time" id="vlcTime">0:00</span>
+                    <input type="range" min="0" max="100" value="0" id="vlcProgress" onchange="vlcSeek(this.value)">
+                    <span class="time" id="vlcDuration">0:00</span>
+                </div>
+
+                <div class="media-controls">
+                    <button class="media-btn" onclick="vlcPrev()">⏮</button>
+                    <button class="media-btn play" id="vlcPlayBtn" onclick="vlcToggle()">▶</button>
+                    <button class="media-btn" onclick="vlcNext()">⏭</button>
+                </div>
+
+                <div class="volume-row">
+                    <span>🔊</span>
+                    <input type="range" min="0" max="100" value="50" id="vlcVolume" onchange="vlcVolume(this.value)">
+                    <span class="volume-value" id="vlcVolumeValue">50%</span>
+                </div>
+            </div>
+
+            <!-- Fullscreen -->
+            <button class="fullscreen-btn" onclick="vlcFullscreen()">📺 PANTALLA COMPLETA EN PROYECTOR</button>
+
+            <!-- Add Content -->
+            <div class="add-media-card">
+                <label>AGREGAR CONTENIDO</label>
+                <div class="add-media-row">
+                    <input type="text" id="vlcMediaInput" placeholder="Pegar link de YouTube...">
+                    <button onclick="vlcPlayNow()">▶</button>
+                </div>
+            </div>
+
+            <!-- Queue -->
+            <div class="queue-card" id="vlcQueueCard" style="display: none;">
+                <div class="queue-header">
+                    <h3>COLA (<span id="vlcQueueCount">0</span>)</h3>
+                    <button class="queue-clear" onclick="vlcClear()">Limpiar</button>
+                </div>
+                <div class="queue-list" id="vlcQueueList"></div>
+            </div>
+
+            <!-- Settings -->
+            <div class="media-settings">
+                <label>HOST VLC (IP:PUERTO)</label>
+                <input type="text" id="vlcHost" placeholder="http://192.168.1.100:8080">
+                <label>CONTRASEÑA VLC</label>
+                <input type="password" id="vlcPassword" placeholder="Contraseña">
+                <button onclick="vlcSaveSettings()">GUARDAR CONFIGURACIÓN</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Order Bar -->
     <div class="order-bar" id="orderBar">
         <div class="order-bar-info">
@@ -1107,6 +1472,12 @@
                 <path d="M12 6v6l4 2" />
             </svg>
             PEDIDOS
+        </div>
+        <div class="nav-item" onclick="switchScreen('medios')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            MEDIOS
         </div>
     </nav>
 
@@ -1429,6 +1800,97 @@
         function deleteOrder(id) { if (confirm('¿Eliminar?')) { orders = orders.filter(o => o.id !== id); localStorage.setItem('aquilea-orders', JSON.stringify(orders)); renderOrders(); updateMesaIndicators(); } }
         function updateMesaIndicators() { document.querySelectorAll('.mesa-btn').forEach(btn => btn.classList.remove('has-order')); orders.filter(o => o.status === 'pending').forEach(o => { document.getElementById(`mesa-${o.mesa}`)?.classList.add('has-order'); }); }
         function switchScreen(screen) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(`screen-${screen}`).classList.add('active'); event.currentTarget.classList.add('active'); }
+
+        // ==================== VLC CONTROL ====================
+        let vlcConfig = JSON.parse(localStorage.getItem('vlc-config') || '{"host":"http://localhost:8080","password":""}');
+        let vlcStatus = { connected: false, state: 'stopped', time: 0, length: 0, volume: 50, title: '' };
+
+        function vlcInit() {
+            document.getElementById('vlcHost').value = vlcConfig.host;
+            document.getElementById('vlcPassword').value = vlcConfig.password;
+            vlcPoll();
+            setInterval(vlcPoll, 2000);
+        }
+
+        function vlcSaveSettings() {
+            vlcConfig.host = document.getElementById('vlcHost').value;
+            vlcConfig.password = document.getElementById('vlcPassword').value;
+            localStorage.setItem('vlc-config', JSON.stringify(vlcConfig));
+            vlcPoll();
+            alert('✓ Configuración guardada');
+        }
+
+        async function vlcRequest(params = {}) {
+            if (!vlcConfig.host) return null;
+            const url = new URL(vlcConfig.host + '/requests/status.json');
+            Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v));
+            try {
+                const res = await fetch(url.toString(), {
+                    headers: { 'Authorization': 'Basic ' + btoa(':' + vlcConfig.password) }
+                });
+                if (!res.ok) throw new Error('VLC error');
+                return await res.json();
+            } catch {
+                return null;
+            }
+        }
+
+        async function vlcPoll() {
+            const data = await vlcRequest();
+            const connEl = document.getElementById('vlcConnection');
+            const connText = document.getElementById('vlcConnectionText');
+
+            if (!data) {
+                vlcStatus.connected = false;
+                connEl.className = 'media-connection offline';
+                connText.textContent = 'Desconectado';
+                return;
+            }
+
+            vlcStatus.connected = true;
+            connEl.className = 'media-connection online';
+            connText.textContent = 'Conectado';
+
+            vlcStatus.state = data.state || 'stopped';
+            vlcStatus.time = data.time || 0;
+            vlcStatus.length = data.length || 0;
+            vlcStatus.volume = Math.round((data.volume / 512) * 100);
+            vlcStatus.title = data.information?.category?.meta?.title || data.information?.category?.meta?.filename || 'Sin reproducción';
+
+            document.getElementById('vlcTitle').textContent = vlcStatus.title;
+            document.getElementById('vlcTime').textContent = formatVlcTime(vlcStatus.time);
+            document.getElementById('vlcDuration').textContent = formatVlcTime(vlcStatus.length);
+            document.getElementById('vlcProgress').max = vlcStatus.length || 100;
+            document.getElementById('vlcProgress').value = vlcStatus.time;
+            document.getElementById('vlcVolume').value = vlcStatus.volume;
+            document.getElementById('vlcVolumeValue').textContent = vlcStatus.volume + '%';
+            document.getElementById('vlcPlayBtn').textContent = vlcStatus.state === 'playing' ? '⏸' : '▶';
+        }
+
+        function formatVlcTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return m + ':' + sec.toString().padStart(2, '0');
+        }
+
+        async function vlcToggle() { await vlcRequest({ command: 'pl_pause' }); vlcPoll(); }
+        async function vlcNext() { await vlcRequest({ command: 'pl_next' }); vlcPoll(); }
+        async function vlcPrev() { await vlcRequest({ command: 'pl_previous' }); vlcPoll(); }
+        async function vlcSeek(val) { await vlcRequest({ command: 'seek', val: val.toString() }); }
+        async function vlcVolume(val) { await vlcRequest({ command: 'volume', val: Math.round((val / 100) * 512).toString() }); document.getElementById('vlcVolumeValue').textContent = val + '%'; }
+        async function vlcFullscreen() { await vlcRequest({ command: 'fullscreen' }); }
+        async function vlcClear() { await vlcRequest({ command: 'pl_empty' }); vlcPoll(); }
+
+        async function vlcPlayNow() {
+            const input = document.getElementById('vlcMediaInput').value.trim();
+            if (!input) return;
+            await vlcRequest({ command: 'in_play', input: input });
+            document.getElementById('vlcMediaInput').value = '';
+            setTimeout(vlcPoll, 500);
+        }
+
+        // Initialize VLC on load
+        setTimeout(vlcInit, 500);
 
         init();
     </script>
