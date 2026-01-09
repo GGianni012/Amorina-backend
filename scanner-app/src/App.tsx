@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Scanner from './components/Scanner';
+import MediaControlPanel from './components/MediaControlPanel';
 
 // Simple auth state - in production would use proper session management
 const AUTH_KEY = 'amorina_scanner_auth';
 
+type ActiveTab = 'scanner' | 'media';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('scanner');
 
   useEffect(() => {
     // Check if already logged in
@@ -64,7 +68,39 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
-  return <Scanner onLogout={handleLogout} />;
+  // Main app with tab navigation
+  return (
+    <div className="app-container">
+      {/* Tab navigation */}
+      <nav className="tab-nav">
+        <button
+          className={`tab-btn ${activeTab === 'scanner' ? 'active' : ''}`}
+          onClick={() => setActiveTab('scanner')}
+        >
+          📷 Scanner
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'media' ? 'active' : ''}`}
+          onClick={() => setActiveTab('media')}
+        >
+          🎵 Medios
+        </button>
+        <button className="tab-btn logout" onClick={handleLogout}>
+          Salir
+        </button>
+      </nav>
+
+      {/* Content based on active tab */}
+      <main className="tab-content">
+        {activeTab === 'scanner' && (
+          <Scanner onLogout={() => { }} />
+        )}
+        {activeTab === 'media' && (
+          <MediaControlPanel onBack={() => setActiveTab('scanner')} />
+        )}
+      </main>
+    </div>
+  );
 }
 
 export default App;
