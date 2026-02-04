@@ -2222,6 +2222,48 @@
 
                 if (cashbackError) console.error('Cashback error:', cashbackError);
 
+                // Sync to Google Sheets
+                const SHEETS_SYNC_URL = 'https://script.google.com/macros/s/AKfycbxBl9TRXE5vTl8GZJIWYmDDpKFaHt-QGYjZEJrMC107_kei9fiZQbFyGbrJY2hCY5Pk/exec';
+
+                try {
+                    // Log consumption
+                    fetch(SHEETS_SYNC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fecha: new Date().toLocaleString('es-AR'),
+                            email: selectedCitizen.email,
+                            nombre: selectedCitizen.name || 'N/A',
+                            tipo: '🍽️ Consumo',
+                            monto: -dracmaDeduction,
+                            descripcion: itemName + ' ($' + price.toLocaleString('es-AR') + ')',
+                            saldo: consumeResult?.new_balance || 0,
+                            ciudadania: selectedCitizen.membership_type
+                        })
+                    });
+
+                    // Log cashback
+                    fetch(SHEETS_SYNC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fecha: new Date().toLocaleString('es-AR'),
+                            email: selectedCitizen.email,
+                            nombre: selectedCitizen.name || 'N/A',
+                            tipo: '↩️ Cashback',
+                            monto: cashback,
+                            descripcion: 'Cashback 10% - ' + itemName,
+                            saldo: (consumeResult?.new_balance || 0) + cashback,
+                            ciudadania: selectedCitizen.membership_type
+                        })
+                    });
+                    console.log('Synced to Google Sheets');
+                } catch (sheetErr) {
+                    console.log('Sheet sync failed (non-blocking):', sheetErr);
+                }
+
                 // Show success
                 document.getElementById('consumptionForm').style.display = 'none';
                 document.getElementById('selectedCitizenCard').style.display = 'none';
