@@ -9,12 +9,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a0a0a">
     <title>Aquilea 57 Staff</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -827,6 +830,505 @@
                 font-size: 1.3rem;
             }
         }
+
+        /* ==================== MEDIA CONTROL PANEL ==================== */
+        .media-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .media-connection {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .media-connection.online {
+            background: rgba(46, 125, 50, 0.15);
+            color: var(--success);
+        }
+
+        .media-connection.offline {
+            background: rgba(198, 40, 40, 0.15);
+            color: var(--danger);
+        }
+
+        .media-connection .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .now-playing-card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 20px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .now-playing-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .now-playing-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .media-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .media-progress .time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-width: 35px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .media-progress input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .media-progress input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--red);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .media-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .media-btn {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--black);
+            background: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .media-btn:active {
+            background: var(--red);
+            color: white;
+        }
+
+        .media-btn.play {
+            width: 60px;
+            height: 60px;
+            background: var(--red);
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .volume-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .volume-row span {
+            font-size: 1.2rem;
+        }
+
+        .volume-row input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .volume-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--black);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-value {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        .fullscreen-btn {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--black);
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 var(--red);
+        }
+
+        .add-media-card {
+            background: var(--white);
+            border: 2px solid var(--black);
+            padding: 16px;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .add-media-card label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .add-media-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-media-row input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--black);
+            font-size: 0.85rem;
+        }
+
+        .add-media-row button {
+            padding: 12px 16px;
+            border: 2px solid var(--black);
+            background: var(--red);
+            color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .media-settings {
+            background: var(--cream-dark);
+            border: 2px solid var(--black);
+            padding: 16px;
+        }
+
+        .media-settings label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .media-settings input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--black);
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .media-settings button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--black);
+            background: var(--success);
+            color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            cursor: pointer;
+        }
+
+        /* ==================== DRACMAS PANEL ==================== */
+        .dracma-search-panel {
+            background: var(--cream-dark);
+            border: 2px solid var(--black);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .dracma-search-panel label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .search-row input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--black);
+            font-size: 1rem;
+        }
+
+        .citizen-results {
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .citizen-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 2px solid var(--black);
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .citizen-result-item:hover {
+            background: var(--cream);
+            transform: translateX(4px);
+        }
+
+        .citizen-result-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--red);
+        }
+
+        .citizen-result-item .name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+        }
+
+        .citizen-result-item .email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .citizen-result-item .balance-badge {
+            margin-left: auto;
+            background: var(--black);
+            color: var(--cream);
+            padding: 4px 10px;
+            font-family: 'Bebas Neue', sans-serif;
+        }
+
+        .selected-citizen-card {
+            background: var(--black);
+            color: white;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .citizen-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .selected-citizen-card .citizen-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--red);
+        }
+
+        .citizen-details {
+            flex: 1;
+        }
+
+        .citizen-details .citizen-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+        }
+
+        .citizen-details .citizen-level {
+            font-size: 0.85rem;
+            color: var(--red);
+        }
+
+        .change-btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 8px 12px;
+            font-family: 'Bebas Neue', sans-serif;
+            cursor: pointer;
+        }
+
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .balance-amount {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            color: var(--cream);
+        }
+
+        .consumption-form {
+            background: var(--cream-dark);
+            border: 2px solid var(--black);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .consumption-form label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            margin-top: 16px;
+        }
+
+        .consumption-form label:first-child {
+            margin-top: 0;
+        }
+
+        .consumption-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--black);
+            font-size: 1rem;
+        }
+
+        .price-input-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-prefix {
+            padding: 12px;
+            background: var(--black);
+            color: white;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            border: 2px solid var(--black);
+            border-right: none;
+        }
+
+        .price-input-row input {
+            border-left: none;
+        }
+
+        .calculation-preview {
+            background: white;
+            border: 2px solid var(--black);
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .calc-row.cashback {
+            color: var(--success);
+        }
+
+        .calc-row.total {
+            border-top: 2px solid var(--black);
+            padding-top: 12px;
+            margin-top: 8px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .confirm-consumption-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 16px;
+            background: var(--red);
+            color: white;
+            border: 2px solid var(--black);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .confirm-consumption-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .confirm-consumption-btn:not(:disabled):hover {
+            background: var(--black);
+        }
+
+        .consumption-success {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--success);
+            color: white;
+            font-size: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .success-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .consumption-success button {
+            padding: 14px 32px;
+            background: var(--black);
+            color: white;
+            border: none;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -1076,6 +1578,118 @@
         <div id="activeOrders"></div>
     </div>
 
+    <!-- Medios Screen -->
+    <div id="screen-medios" class="screen">
+        <div class="section-title">CONTROL DE MEDIOS</div>
+        <div class="media-panel">
+            <div class="media-connection offline" id="vlcConnection"><span class="dot"></span><span
+                    id="vlcConnectionText">Desconectado</span></div>
+            <div class="now-playing-card">
+                <div class="now-playing-label">AHORA SUENA</div>
+                <div class="now-playing-title" id="vlcTitle">Sin reproducción</div>
+                <div class="media-progress">
+                    <span class="time" id="vlcTime">0:00</span>
+                    <input type="range" min="0" max="100" value="0" id="vlcProgress" onchange="vlcSeek(this.value)">
+                    <span class="time" id="vlcDuration">0:00</span>
+                </div>
+                <div class="media-controls">
+                    <button class="media-btn" onclick="vlcPrev()">⏮</button>
+                    <button class="media-btn play" id="vlcPlayBtn" onclick="vlcToggle()">▶</button>
+                    <button class="media-btn" onclick="vlcNext()">⏭</button>
+                </div>
+                <div class="volume-row">
+                    <span>🔊</span>
+                    <input type="range" min="0" max="100" value="50" id="vlcVolume" onchange="vlcVolume(this.value)">
+                    <span class="volume-value" id="vlcVolumeValue">50%</span>
+                </div>
+            </div>
+            <button class="fullscreen-btn" onclick="vlcFullscreen()">📺 PANTALLA COMPLETA EN PROYECTOR</button>
+            <div class="add-media-card">
+                <label>AGREGAR CONTENIDO</label>
+                <div class="add-media-row">
+                    <input type="text" id="vlcMediaInput" placeholder="Pegar link de YouTube...">
+                    <button onclick="vlcPlayNow()">▶</button>
+                </div>
+            </div>
+            <div class="media-settings">
+                <label>HOST VLC (IP:PUERTO)</label>
+                <input type="text" id="vlcHost" placeholder="http://192.168.1.100:8080">
+                <label>CONTRASEÑA VLC</label>
+                <input type="password" id="vlcPassword" placeholder="Contraseña">
+                <button onclick="vlcSaveSettings()">GUARDAR CONFIGURACIÓN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DRACMAS Screen -->
+    <div id="screen-dracmas" class="screen">
+        <div class="section-title">CARGAR CONSUMO DRACMAS</div>
+
+        <!-- Citizen Search -->
+        <div class="dracma-search-panel">
+            <label>BUSCAR CIUDADANO</label>
+            <div class="search-row">
+                <input type="text" id="citizenSearch" placeholder="Nombre o email..."
+                    oninput="searchCitizens(this.value)">
+            </div>
+            <div class="citizen-results" id="citizenResults"></div>
+        </div>
+
+        <!-- Selected Citizen Card (hidden by default) -->
+        <div class="selected-citizen-card" id="selectedCitizenCard" style="display: none;">
+            <div class="citizen-row">
+                <img src="" alt="" class="citizen-avatar" id="staffCitizenAvatar">
+                <div class="citizen-details">
+                    <div class="citizen-name" id="staffCitizenName">-</div>
+                    <div class="citizen-level" id="staffCitizenLevel">-</div>
+                </div>
+                <button class="change-btn" onclick="clearSelectedCitizen()">CAMBIAR</button>
+            </div>
+            <div class="balance-row">
+                <span class="balance-label">SALDO DISPONIBLE</span>
+                <span class="balance-amount" id="staffCitizenBalance">0.00 Ɖ</span>
+            </div>
+        </div>
+
+        <!-- Consumption Form (hidden until citizen selected) -->
+        <div class="consumption-form" id="consumptionForm" style="display: none;">
+            <label>ITEM CONSUMIDO</label>
+            <input type="text" id="consumptionItem" placeholder="Ej: Gin Tonic, Schiaccata...">
+
+            <label>PRECIO EN PESOS</label>
+            <div class="price-input-row">
+                <span class="currency-prefix">$</span>
+                <input type="number" id="consumptionPrice" placeholder="8500" oninput="calculateDracmas()">
+            </div>
+
+            <div class="calculation-preview" id="calculationPreview">
+                <div class="calc-row">
+                    <span>Descuento:</span>
+                    <span id="dracmaDeduction">-0.00 Ɖ</span>
+                </div>
+                <div class="calc-row cashback">
+                    <span>Cashback 10%:</span>
+                    <span id="dracmaCashback">+0.00 Ɖ</span>
+                </div>
+                <div class="calc-row total">
+                    <span>Saldo después:</span>
+                    <span id="balanceAfter">0.00 Ɖ</span>
+                </div>
+            </div>
+
+            <button class="confirm-consumption-btn" id="confirmBtn" onclick="confirmConsumption()" disabled>
+                CONFIRMAR CONSUMO
+            </button>
+        </div>
+
+        <!-- Success Feedback (hidden) -->
+        <div class="consumption-success" id="consumptionSuccess" style="display: none;">
+            <div class="success-icon">✓</div>
+            <div class="success-text">CONSUMO REGISTRADO</div>
+            <button onclick="resetDracmaScreen()">NUEVO CONSUMO</button>
+        </div>
+    </div>
+
     <!-- Order Bar -->
     <div class="order-bar" id="orderBar">
         <div class="order-bar-info">
@@ -1107,6 +1721,19 @@
                 <path d="M12 6v6l4 2" />
             </svg>
             PEDIDOS
+        </div>
+        <div class="nav-item" onclick="switchScreen('medios')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            MEDIOS
+        </div>
+        <div class="nav-item" onclick="switchScreen('dracmas')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v12M9 9h6M9 15h6" />
+            </svg>
+            DRACMAS
         </div>
     </nav>
 
@@ -1429,6 +2056,195 @@
         function deleteOrder(id) { if (confirm('¿Eliminar?')) { orders = orders.filter(o => o.id !== id); localStorage.setItem('aquilea-orders', JSON.stringify(orders)); renderOrders(); updateMesaIndicators(); } }
         function updateMesaIndicators() { document.querySelectorAll('.mesa-btn').forEach(btn => btn.classList.remove('has-order')); orders.filter(o => o.status === 'pending').forEach(o => { document.getElementById(`mesa-${o.mesa}`)?.classList.add('has-order'); }); }
         function switchScreen(screen) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(`screen-${screen}`).classList.add('active'); event.currentTarget.classList.add('active'); }
+
+        // ==================== VLC CONTROL ====================
+        let vlcConfig = JSON.parse(localStorage.getItem('vlc-config') || '{"host":"http://localhost:8080","password":""}');
+        let vlcStatus = { connected: false, state: 'stopped', time: 0, length: 0, volume: 50, title: '' };
+        function vlcInit() { document.getElementById('vlcHost').value = vlcConfig.host; document.getElementById('vlcPassword').value = vlcConfig.password; vlcPoll(); setInterval(vlcPoll, 2000); }
+        function vlcSaveSettings() { vlcConfig.host = document.getElementById('vlcHost').value; vlcConfig.password = document.getElementById('vlcPassword').value; localStorage.setItem('vlc-config', JSON.stringify(vlcConfig)); vlcPoll(); alert('✓ Configuración guardada'); }
+        async function vlcRequest(params = {}) { if (!vlcConfig.host) return null; const url = new URL(vlcConfig.host + '/requests/status.json'); Object.entries(params).forEach(([k, v]) => url.searchParams.append(k, v)); try { const res = await fetch(url.toString(), { headers: { 'Authorization': 'Basic ' + btoa(':' + vlcConfig.password) } }); if (!res.ok) throw new Error('VLC error'); return await res.json(); } catch { return null; } }
+        async function vlcPoll() { const data = await vlcRequest(); const connEl = document.getElementById('vlcConnection'); const connText = document.getElementById('vlcConnectionText'); if (!data) { vlcStatus.connected = false; connEl.className = 'media-connection offline'; connText.textContent = 'Desconectado'; return; } vlcStatus.connected = true; connEl.className = 'media-connection online'; connText.textContent = 'Conectado'; vlcStatus.state = data.state || 'stopped'; vlcStatus.time = data.time || 0; vlcStatus.length = data.length || 0; vlcStatus.volume = Math.round((data.volume / 512) * 100); vlcStatus.title = data.information?.category?.meta?.title || data.information?.category?.meta?.filename || 'Sin reproducción'; document.getElementById('vlcTitle').textContent = vlcStatus.title; document.getElementById('vlcTime').textContent = formatVlcTime(vlcStatus.time); document.getElementById('vlcDuration').textContent = formatVlcTime(vlcStatus.length); document.getElementById('vlcProgress').max = vlcStatus.length || 100; document.getElementById('vlcProgress').value = vlcStatus.time; document.getElementById('vlcVolume').value = vlcStatus.volume; document.getElementById('vlcVolumeValue').textContent = vlcStatus.volume + '%'; document.getElementById('vlcPlayBtn').textContent = vlcStatus.state === 'playing' ? '⏸' : '▶'; }
+        function formatVlcTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + sec.toString().padStart(2, '0'); }
+        async function vlcToggle() { await vlcRequest({ command: 'pl_pause' }); vlcPoll(); }
+        async function vlcNext() { await vlcRequest({ command: 'pl_next' }); vlcPoll(); }
+        async function vlcPrev() { await vlcRequest({ command: 'pl_previous' }); vlcPoll(); }
+        async function vlcSeek(val) { await vlcRequest({ command: 'seek', val: val.toString() }); }
+        async function vlcVolume(val) { await vlcRequest({ command: 'volume', val: Math.round((val / 100) * 512).toString() }); document.getElementById('vlcVolumeValue').textContent = val + '%'; }
+        async function vlcFullscreen() { await vlcRequest({ command: 'fullscreen' }); }
+        async function vlcPlayNow() { const input = document.getElementById('vlcMediaInput').value.trim(); if (!input) return; await vlcRequest({ command: 'in_play', input: input }); document.getElementById('vlcMediaInput').value = ''; setTimeout(vlcPoll, 500); }
+        setTimeout(vlcInit, 500);
+
+        // ==================== DRACMAS PANEL ====================
+        const SUPABASE_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co';
+        let supabaseClient = null;
+        let selectedCitizen = null;
+        let searchTimeout = null;
+
+        // Initialize Supabase for DRACMAS
+        async function initDracmaSupabase() {
+            if (typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        }
+
+        // Search citizens by name or email
+        async function searchCitizens(query) {
+            clearTimeout(searchTimeout);
+            const resultsDiv = document.getElementById('citizenResults');
+
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                if (!supabaseClient) {
+                    resultsDiv.innerHTML = '<div style="padding: 12px; color: #888;">Conectando...</div>';
+                    await initDracmaSupabase();
+                }
+
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('citizens')
+                        .select('*')
+                        .or(`email.ilike.%${query}%,name.ilike.%${query}%`)
+                        .in('membership_type', ['standard', 'premium'])
+                        .limit(5);
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        resultsDiv.innerHTML = '<div style="padding: 12px; color: #888;">No se encontraron ciudadanos</div>';
+                        return;
+                    }
+
+                    resultsDiv.innerHTML = data.map(citizen => `
+                        <div class="citizen-result-item" onclick='selectCitizen(${JSON.stringify(citizen).replace(/'/g, "\\'")})'>
+                            <img src="${citizen.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(citizen.name || citizen.email)}" alt="">
+                            <div>
+                                <div class="name">${citizen.name || citizen.email.split('@')[0]}</div>
+                                <div class="email">${citizen.email}</div>
+                            </div>
+                            <span class="balance-badge">${parseFloat(citizen.dracma_balance || 0).toFixed(2)} Ɖ</span>
+                        </div>
+                    `).join('');
+                } catch (err) {
+                    console.error('Error searching citizens:', err);
+                    resultsDiv.innerHTML = '<div style="padding: 12px; color: var(--red);">Error buscando</div>';
+                }
+            }, 300);
+        }
+
+        // Select a citizen for consumption
+        function selectCitizen(citizen) {
+            selectedCitizen = citizen;
+
+            // Hide search, show selected card
+            document.querySelector('.dracma-search-panel').style.display = 'none';
+            document.getElementById('selectedCitizenCard').style.display = 'block';
+            document.getElementById('consumptionForm').style.display = 'block';
+
+            // Populate selected citizen info
+            document.getElementById('staffCitizenAvatar').src = citizen.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(citizen.name || citizen.email);
+            document.getElementById('staffCitizenName').textContent = citizen.name || citizen.email.split('@')[0];
+            document.getElementById('staffCitizenLevel').textContent = citizen.membership_type === 'premium' ? 'Ciudadano Premium' : 'Ciudadano Standard';
+            document.getElementById('staffCitizenBalance').textContent = parseFloat(citizen.dracma_balance || 0).toFixed(2) + ' Ɖ';
+        }
+
+        // Clear selected citizen
+        function clearSelectedCitizen() {
+            selectedCitizen = null;
+            document.querySelector('.dracma-search-panel').style.display = 'block';
+            document.getElementById('selectedCitizenCard').style.display = 'none';
+            document.getElementById('consumptionForm').style.display = 'none';
+            document.getElementById('citizenSearch').value = '';
+            document.getElementById('citizenResults').innerHTML = '';
+            document.getElementById('consumptionItem').value = '';
+            document.getElementById('consumptionPrice').value = '';
+        }
+
+        // Calculate DRACMAS from price (1 DRACMA = $1000)
+        function calculateDracmas() {
+            const price = parseFloat(document.getElementById('consumptionPrice').value) || 0;
+            const dracmaDeduction = price / 1000; // $1000 = 1 DRACMA
+            const cashback = dracmaDeduction * 0.10; // 10% cashback
+            const currentBalance = parseFloat(selectedCitizen?.dracma_balance || 0);
+            const balanceAfter = currentBalance - dracmaDeduction + cashback;
+
+            document.getElementById('dracmaDeduction').textContent = '-' + dracmaDeduction.toFixed(2) + ' Ɖ';
+            document.getElementById('dracmaCashback').textContent = '+' + cashback.toFixed(2) + ' Ɖ';
+            document.getElementById('balanceAfter').textContent = balanceAfter.toFixed(2) + ' Ɖ';
+
+            // Enable/disable confirm button
+            const confirmBtn = document.getElementById('confirmBtn');
+            const itemName = document.getElementById('consumptionItem').value.trim();
+
+            if (price > 0 && itemName && dracmaDeduction <= currentBalance) {
+                confirmBtn.disabled = false;
+            } else {
+                confirmBtn.disabled = true;
+            }
+        }
+
+        // Confirm consumption
+        async function confirmConsumption() {
+            if (!selectedCitizen) return;
+
+            const price = parseFloat(document.getElementById('consumptionPrice').value);
+            const itemName = document.getElementById('consumptionItem').value.trim();
+            const dracmaDeduction = price / 1000;
+            const cashback = dracmaDeduction * 0.10;
+
+            const confirmBtn = document.getElementById('confirmBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'PROCESANDO...';
+
+            try {
+                if (!supabaseClient) await initDracmaSupabase();
+
+                // Record consumption transaction
+                const { data: consumeResult, error: consumeError } = await supabaseClient.rpc('record_dracma_transaction', {
+                    p_citizen_id: selectedCitizen.id,
+                    p_type: 'consumo',
+                    p_amount: -dracmaDeduction,
+                    p_description: itemName + ' ($' + price.toLocaleString('es-AR') + ')'
+                });
+
+                if (consumeError) throw consumeError;
+
+                // Record cashback transaction
+                const { error: cashbackError } = await supabaseClient.rpc('record_dracma_transaction', {
+                    p_citizen_id: selectedCitizen.id,
+                    p_type: 'cashback',
+                    p_amount: cashback,
+                    p_description: 'Cashback 10% - ' + itemName
+                });
+
+                if (cashbackError) console.error('Cashback error:', cashbackError);
+
+                // Show success
+                document.getElementById('consumptionForm').style.display = 'none';
+                document.getElementById('selectedCitizenCard').style.display = 'none';
+                document.getElementById('consumptionSuccess').style.display = 'block';
+
+            } catch (err) {
+                console.error('Error recording consumption:', err);
+                alert('Error: ' + (err.message || 'No se pudo registrar el consumo'));
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'CONFIRMAR CONSUMO';
+            }
+        }
+
+        // Reset DRACMA screen for new consumption
+        function resetDracmaScreen() {
+            clearSelectedCitizen();
+            document.getElementById('consumptionSuccess').style.display = 'none';
+            document.getElementById('confirmBtn').textContent = 'CONFIRMAR CONSUMO';
+            document.getElementById('confirmBtn').disabled = true;
+        }
+
+        // Initialize Supabase on load
+        initDracmaSupabase();
 
         init();
     </script>
