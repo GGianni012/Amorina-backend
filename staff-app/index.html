@@ -2108,7 +2108,7 @@
                         .from('citizens')
                         .select('*')
                         .or(`email.ilike.%${query}%,name.ilike.%${query}%`)
-                        .in('membership_type', ['standard', 'premium'])
+                        .neq('membership_type', 'inactive')
                         .limit(5);
 
                     if (error) throw error;
@@ -2223,7 +2223,7 @@
                 if (cashbackError) console.error('Cashback error:', cashbackError);
 
                 // Sync to Google Sheets
-                const SHEETS_SYNC_URL = 'https://script.google.com/macros/s/AKfycbxBl9TRXE5vTl8GZJIWYmDDpKFaHt-QGYjZEJrMC107_kei9fiZQbFyGbrJY2hCY5Pk/exec';
+                const SHEETS_SYNC_URL = 'https://script.google.com/macros/s/AKfycbxy47y2PEKxSLCM-D0EhOH7FREeMcxCwnePsaOO83Mv81k9SlbN73nITJdjASn49OiP/exec';
 
                 try {
                     // Log consumption
@@ -2259,6 +2259,22 @@
                             ciudadania: selectedCitizen.membership_type
                         })
                     });
+
+                    // Sync citizen data
+                    fetch(SHEETS_SYNC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'sync_citizen',
+                            email: selectedCitizen.email,
+                            nombre: selectedCitizen.name || 'N/A',
+                            ciudadania: selectedCitizen.membership_type,
+                            saldo: (consumeResult?.new_balance || 0) + cashback,
+                            ultimo_pago: selectedCitizen.last_payment_date || ''
+                        })
+                    });
+
                     console.log('Synced to Google Sheets');
                 } catch (sheetErr) {
                     console.log('Sheet sync failed (non-blocking):', sheetErr);
