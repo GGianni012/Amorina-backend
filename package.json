@@ -9,6 +9,7 @@
         "dev:scanner": "cd scanner-app && npm run dev"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.95.3",
         "googleapis": "^140.0.0",
         "mercadopago": "^2.0.0",
         "qrcode": "^1.5.3",

@@ -1296,6 +1296,52 @@
             background: var(--black);
         }
 
+        /* ==================== MEMBERSHIP APPROVAL ==================== */
+        .membership-btn {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            border: 2px solid #555;
+            color: #888;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .membership-btn:hover {
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+
+        .membership-btn.selected {
+            background: #d4af37;
+            border-color: #d4af37;
+            color: #000;
+        }
+
+        .approve-btn {
+            width: 100%;
+            padding: 16px;
+            background: #4ade80;
+            color: #000;
+            border: none;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .approve-btn:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .approve-btn:not(:disabled):hover {
+            background: #22c55e;
+        }
+
         .consumption-success {
             text-align: center;
             padding: 40px 20px;
@@ -1623,7 +1669,32 @@
 
     <!-- DRACMAS Screen -->
     <div id="screen-dracmas" class="screen">
-        <div class="section-title">CARGAR CONSUMO DRACMAS</div>
+        <div class="section-title">CARGAR CONSUMO SMAQ</div>
+
+        <!-- SMAQ Quick Charge via QR (Google Wallet) -->
+        <div class="manual-input" style="background: var(--black); color: white; margin-bottom: 16px;">
+            <label style="color: var(--red);">⚡ COBRO RÁPIDO (Escanear Wallet)</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <input type="number" id="smaqChargeAmount" placeholder="SMAQ"
+                    style="flex: 1; background: #1a1a1a; color: white; border-color: #333; text-align: center;">
+                <button onclick="startSmaqScanner()" style="background: var(--red); min-width: 120px;">
+                    📷 ESCANEAR
+                </button>
+            </div>
+            <div id="smaqScannerContainer" style="display: none; margin-top: 12px;">
+                <div id="smaq-qr-reader" style="width: 100%; max-width: 300px; margin: 0 auto;"></div>
+                <button onclick="stopSmaqScanner()"
+                    style="width: 100%; margin-top: 8px; background: #333; border-color: #555; padding: 10px;">
+                    CANCELAR
+                </button>
+            </div>
+            <div id="smaqChargeResult" style="display: none; margin-top: 12px; padding: 16px; text-align: center;">
+            </div>
+        </div>
+
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-bottom: 16px;">
+            ─── o buscar manualmente ───
+        </div>
 
         <!-- Citizen Search -->
         <div class="dracma-search-panel">
@@ -1699,6 +1770,72 @@
         <button onclick="sendOrder()">ENVIAR →</button>
     </div>
 
+    <!-- CIUDADANOS Screen (Membership Approval) -->
+    <div id="screen-ciudadanos" class="screen">
+        <div class="section-title">GESTIÓN DE CIUDADANOS</div>
+
+        <!-- Citizen Search -->
+        <div class="dracma-search-panel">
+            <label>BUSCAR CIUDADANO</label>
+            <div class="search-row">
+                <input type="text" id="membershipSearch" placeholder="Nombre o email..."
+                    oninput="searchCitizensForMembership(this.value)">
+            </div>
+            <div class="citizen-results" id="membershipResults"></div>
+        </div>
+
+        <!-- Selected Citizen for Membership -->
+        <div id="membershipCitizenCard" style="display: none;">
+            <div class="selected-citizen-card">
+                <div class="citizen-row">
+                    <img id="membershipAvatar" src="" alt="">
+                    <div>
+                        <div class="name" id="membershipName"></div>
+                        <div class="email" id="membershipEmail"></div>
+                    </div>
+                </div>
+                <div class="citizen-stats">
+                    <div>
+                        <span class="label">Tipo actual:</span>
+                        <span class="value" id="membershipCurrentType"></span>
+                    </div>
+                    <div>
+                        <span class="label">Saldo DRACMAS:</span>
+                        <span class="value" id="membershipBalance"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Membership Actions -->
+            <div class="membership-actions" style="margin-top: 16px;">
+                <label style="color: #d4af37; font-size: 14px; display: block; margin-bottom: 8px;">APROBAR
+                    MEMBRESÍA</label>
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <button class="membership-btn" id="btnStandard" onclick="selectMembershipPlan('standard')">
+                        STANDARD<br><small>$6.000 / 25 ₯</small>
+                    </button>
+                    <button class="membership-btn" id="btnPremium" onclick="selectMembershipPlan('premium')">
+                        PREMIUM<br><small>$10.000 / 50 ₯</small>
+                    </button>
+                </div>
+                <button id="approveMembershipBtn" class="approve-btn" onclick="approveMembership()" disabled>
+                    CONFIRMAR APROBACIÓN
+                </button>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="membershipSuccess" style="display: none; text-align: center; padding: 40px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
+            <div style="color: #4ade80; font-size: 18px; margin-bottom: 8px;">MEMBRESÍA APROBADA</div>
+            <div id="membershipSuccessDetails" style="color: #888;"></div>
+            <button onclick="resetMembershipScreen()"
+                style="margin-top: 24px; padding: 12px 24px; background: #333; border: 1px solid #555; color: white; cursor: pointer;">
+                CARGAR OTRA
+            </button>
+        </div>
+    </div>
+
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchScreen('entradas')">
@@ -1733,7 +1870,14 @@
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v12M9 9h6M9 15h6" />
             </svg>
-            DRACMAS
+            SMAQ
+        </div>
+        <div class="nav-item" onclick="switchScreen('ciudadanos')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+            SOCIOS
         </div>
     </nav>
 
@@ -2213,7 +2357,7 @@
                 if (consumeError) throw consumeError;
 
                 // Record cashback transaction
-                const { error: cashbackError } = await supabaseClient.rpc('record_dracma_transaction', {
+                const { data: cashbackResult, error: cashbackError } = await supabaseClient.rpc('record_dracma_transaction', {
                     p_citizen_id: selectedCitizen.id,
                     p_type: 'cashback',
                     p_amount: cashback,
@@ -2226,7 +2370,8 @@
                 const SHEETS_SYNC_URL = 'https://script.google.com/macros/s/AKfycbxy47y2PEKxSLCM-D0EhOH7FREeMcxCwnePsaOO83Mv81k9SlbN73nITJdjASn49OiP/exec';
 
                 try {
-                    // Log consumption
+                    // Log consumption (RPC returns TABLE as array)
+                    const consumeBalance = (consumeResult && consumeResult[0]) ? consumeResult[0].new_balance : 0;
                     fetch(SHEETS_SYNC_URL, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -2238,12 +2383,13 @@
                             tipo: '🍽️ Consumo',
                             monto: -dracmaDeduction,
                             descripcion: itemName + ' ($' + price.toLocaleString('es-AR') + ')',
-                            saldo: consumeResult?.new_balance || 0,
+                            saldo: consumeBalance,
                             ciudadania: selectedCitizen.membership_type
                         })
                     });
 
-                    // Log cashback
+                    // Log cashback (RPC returns TABLE as array)
+                    const cashbackBalance = (cashbackResult && cashbackResult[0]) ? cashbackResult[0].new_balance : 0;
                     fetch(SHEETS_SYNC_URL, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -2255,12 +2401,14 @@
                             tipo: '↩️ Cashback',
                             monto: cashback,
                             descripcion: 'Cashback 10% - ' + itemName,
-                            saldo: (consumeResult?.new_balance || 0) + cashback,
+                            saldo: cashbackBalance,
                             ciudadania: selectedCitizen.membership_type
                         })
                     });
 
-                    // Sync citizen data
+                    // Sync citizen data (use final balance after cashback)
+                    // Note: RPC returns TABLE which Supabase returns as array
+                    const finalBalance = (cashbackResult && cashbackResult[0]) ? cashbackResult[0].new_balance : 0;
                     fetch(SHEETS_SYNC_URL, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -2270,7 +2418,7 @@
                             email: selectedCitizen.email,
                             nombre: selectedCitizen.name || 'N/A',
                             ciudadania: selectedCitizen.membership_type,
-                            saldo: (consumeResult?.new_balance || 0) + cashback,
+                            saldo: finalBalance,
                             ultimo_pago: selectedCitizen.last_payment_date || ''
                         })
                     });
@@ -2301,8 +2449,299 @@
             document.getElementById('confirmBtn').disabled = true;
         }
 
+        // ==================== MEMBERSHIP APPROVAL ====================
+        let selectedMembershipCitizen = null;
+        let selectedPlan = null;
+        let membershipSearchTimeout = null;
+
+        async function searchCitizensForMembership(query) {
+            clearTimeout(membershipSearchTimeout);
+            const resultsDiv = document.getElementById('membershipResults');
+
+            if (query.length < 2) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            membershipSearchTimeout = setTimeout(async () => {
+                if (!supabaseClient) await initDracmaSupabase();
+
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('citizens')
+                        .select('*')
+                        .or(`email.ilike.%${query}%,name.ilike.%${query}%`)
+                        .limit(5);
+
+                    if (error) throw error;
+
+                    if (!data || data.length === 0) {
+                        resultsDiv.innerHTML = '<div style="padding: 12px; color: #888;">No se encontraron ciudadanos</div>';
+                        return;
+                    }
+
+                    resultsDiv.innerHTML = data.map(citizen => `
+                        <div class="citizen-result-item" onclick='selectCitizenForMembership(${JSON.stringify(citizen).replace(/'/g, "\\'")})'>
+                            <img src="${citizen.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(citizen.name || citizen.email)}" alt="">
+                            <div>
+                                <div class="name">${citizen.name || citizen.email.split('@')[0]}</div>
+                                <div class="email">${citizen.email}</div>
+                            </div>
+                            <div class="balance-badge">${citizen.membership_type || 'visitor'}</div>
+                        </div>
+                    `).join('');
+                } catch (err) {
+                    console.error('Search error:', err);
+                    resultsDiv.innerHTML = '<div style="padding: 12px; color: #ff4444;">Error buscando</div>';
+                }
+            }, 300);
+        }
+
+        function selectCitizenForMembership(citizen) {
+            selectedMembershipCitizen = citizen;
+            selectedPlan = null;
+
+            document.getElementById('membershipResults').innerHTML = '';
+            document.getElementById('membershipSearch').value = '';
+            document.getElementById('membershipCitizenCard').style.display = 'block';
+
+            document.getElementById('membershipAvatar').src = citizen.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(citizen.name || citizen.email);
+            document.getElementById('membershipName').textContent = citizen.name || citizen.email.split('@')[0];
+            document.getElementById('membershipEmail').textContent = citizen.email;
+            document.getElementById('membershipCurrentType').textContent = (citizen.membership_type || 'visitor').toUpperCase();
+            document.getElementById('membershipBalance').textContent = (citizen.dracma_balance || 0).toFixed(1) + ' ₯';
+
+            // Reset plan selection
+            document.getElementById('btnStandard').classList.remove('selected');
+            document.getElementById('btnPremium').classList.remove('selected');
+            document.getElementById('approveMembershipBtn').disabled = true;
+        }
+
+        function selectMembershipPlan(plan) {
+            selectedPlan = plan;
+
+            document.getElementById('btnStandard').classList.toggle('selected', plan === 'standard');
+            document.getElementById('btnPremium').classList.toggle('selected', plan === 'premium');
+            document.getElementById('approveMembershipBtn').disabled = false;
+        }
+
+        async function approveMembership() {
+            if (!selectedMembershipCitizen || !selectedPlan) return;
+
+            const btn = document.getElementById('approveMembershipBtn');
+            btn.disabled = true;
+            btn.textContent = 'PROCESANDO...';
+
+            const dracmasToAdd = selectedPlan === 'premium' ? 50 : 25;
+
+            try {
+                if (!supabaseClient) await initDracmaSupabase();
+
+                // Update citizen membership and add DRACMAS
+                const { error: updateError } = await supabaseClient
+                    .from('citizens')
+                    .update({
+                        membership_type: selectedPlan,
+                        last_payment_date: new Date().toISOString()
+                    })
+                    .eq('id', selectedMembershipCitizen.id);
+
+                if (updateError) throw updateError;
+
+                // Record DRACMAS accreditation
+                const { data: accreditResult, error: accreditError } = await supabaseClient.rpc('record_dracma_transaction', {
+                    p_citizen_id: selectedMembershipCitizen.id,
+                    p_type: 'acreditacion',
+                    p_amount: dracmasToAdd,
+                    p_description: 'Membresía ' + selectedPlan.toUpperCase() + ' - ' + new Date().toLocaleDateString('es-AR')
+                });
+
+                if (accreditError) console.error('Accreditation error:', accreditError);
+
+                // Sync to Google Sheets
+                const SHEETS_SYNC_URL = 'https://script.google.com/macros/s/AKfycbxy47y2PEKxSLCM-D0EhOH7FREeMcxCwnePsaOO83Mv81k9SlbN73nITJdjASn49OiP/exec';
+                const finalBalance = (accreditResult && accreditResult[0]) ? accreditResult[0].new_balance : 0;
+
+                try {
+                    // Log accreditation
+                    fetch(SHEETS_SYNC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fecha: new Date().toLocaleString('es-AR'),
+                            email: selectedMembershipCitizen.email,
+                            nombre: selectedMembershipCitizen.name || 'N/A',
+                            tipo: '💰 Acreditación',
+                            monto: dracmasToAdd,
+                            descripcion: 'Membresía ' + selectedPlan.toUpperCase(),
+                            saldo: finalBalance,
+                            ciudadania: selectedPlan
+                        })
+                    });
+
+                    // Sync citizen
+                    fetch(SHEETS_SYNC_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'sync_citizen',
+                            email: selectedMembershipCitizen.email,
+                            nombre: selectedMembershipCitizen.name || 'N/A',
+                            ciudadania: selectedPlan,
+                            saldo: finalBalance,
+                            ultimo_pago: new Date().toLocaleDateString('es-AR')
+                        })
+                    });
+                } catch (sheetErr) {
+                    console.log('Sheet sync failed:', sheetErr);
+                }
+
+                // Show success
+                document.getElementById('membershipCitizenCard').style.display = 'none';
+                document.getElementById('membershipSuccess').style.display = 'block';
+                document.getElementById('membershipSuccessDetails').innerHTML =
+                    `<strong>${selectedMembershipCitizen.name || selectedMembershipCitizen.email}</strong><br>` +
+                    `Plan: ${selectedPlan.toUpperCase()}<br>` +
+                    `DRACMAS acreditados: +${dracmasToAdd} ₯`;
+
+            } catch (err) {
+                console.error('Error approving membership:', err);
+                alert('Error: ' + (err.message || 'No se pudo aprobar la membresía'));
+                btn.disabled = false;
+                btn.textContent = 'CONFIRMAR APROBACIÓN';
+            }
+        }
+
+        function resetMembershipScreen() {
+            selectedMembershipCitizen = null;
+            selectedPlan = null;
+            document.getElementById('membershipCitizenCard').style.display = 'none';
+            document.getElementById('membershipSuccess').style.display = 'none';
+            document.getElementById('approveMembershipBtn').textContent = 'CONFIRMAR APROBACIÓN';
+            document.getElementById('approveMembershipBtn').disabled = true;
+        }
+
         // Initialize Supabase on load
         initDracmaSupabase();
+
+        // ==================== SMAQ QUICK CHARGE (Google Wallet) ====================
+        const SMAQ_API_URL = '/api/smaq'; // Will be proxied through Vercel
+        let smaqScanner = null;
+
+        function startSmaqScanner() {
+            const amount = parseInt(document.getElementById('smaqChargeAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Ingresá el monto en SMAQ a cobrar');
+                return;
+            }
+
+            document.getElementById('smaqScannerContainer').style.display = 'block';
+            document.getElementById('smaqChargeResult').style.display = 'none';
+
+            smaqScanner = new Html5Qrcode('smaq-qr-reader');
+            smaqScanner.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    stopSmaqScanner();
+                    processSmaqCharge(decodedText, amount);
+                },
+                (error) => { /* Ignore scan errors */ }
+            ).catch(err => {
+                console.error('SMAQ Scanner error:', err);
+                alert('Error al iniciar cámara');
+                stopSmaqScanner();
+            });
+        }
+
+        function stopSmaqScanner() {
+            if (smaqScanner) {
+                smaqScanner.stop().catch(() => { });
+                smaqScanner = null;
+            }
+            document.getElementById('smaqScannerContainer').style.display = 'none';
+        }
+
+        async function processSmaqCharge(qrContent, amount) {
+            const resultDiv = document.getElementById('smaqChargeResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="spinner" style="border-color: #333; border-top-color: var(--red);"></div>
+                <div>Procesando cobro de ${amount} SMAQ...</div>
+            `;
+
+            try {
+                // QR content from Google Wallet pass is the objectId
+                // Format: 3388000000023078410.SMAQ_1234567890
+                const walletObjectId = qrContent;
+
+                // Extract email from wallet object or use the objectId directly
+                // For now, we'll need to look up the user by their walletObjectId
+                // This requires backend support - for now we'll use the QR as identifier
+
+                const response = await fetch(`${SMAQ_API_URL}/charge`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        walletObjectId: walletObjectId,
+                        amount: amount,
+                        app: 'aquilea',
+                        description: `Consumo en barra - ${amount} SMAQ`
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div style="font-size: 48px; color: var(--success);">✓</div>
+                        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; margin: 12px 0;">
+                            COBRO EXITOSO
+                        </div>
+                        <div style="color: #888;">
+                            ${amount} SMAQ debitados<br>
+                            Nuevo saldo: <strong>${result.newBalance} SMAQ</strong>
+                        </div>
+                        <button onclick="resetSmaqCharge()" 
+                            style="margin-top: 16px; padding: 12px 24px; background: var(--success); color: white; border: none; font-family: 'Bebas Neue', sans-serif;">
+                            NUEVO COBRO
+                        </button>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="font-size: 48px; color: var(--danger);">✗</div>
+                        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; margin: 12px 0;">
+                            ERROR
+                        </div>
+                        <div style="color: #888;">${result.error || 'No se pudo procesar el cobro'}</div>
+                        <button onclick="resetSmaqCharge()" 
+                            style="margin-top: 16px; padding: 12px 24px; background: var(--danger); color: white; border: none; font-family: 'Bebas Neue', sans-serif;">
+                            REINTENTAR
+                        </button>
+                    `;
+                }
+            } catch (err) {
+                console.error('SMAQ charge error:', err);
+                resultDiv.innerHTML = `
+                    <div style="font-size: 48px; color: var(--danger);">✗</div>
+                    <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; margin: 12px 0;">
+                        ERROR DE CONEXIÓN
+                    </div>
+                    <div style="color: #888;">${err.message || 'Verificá tu conexión a internet'}</div>
+                    <button onclick="resetSmaqCharge()" 
+                        style="margin-top: 16px; padding: 12px 24px; background: var(--danger); color: white; border: none; font-family: 'Bebas Neue', sans-serif;">
+                        REINTENTAR
+                    </button>
+                `;
+            }
+        }
+
+        function resetSmaqCharge() {
+            document.getElementById('smaqChargeResult').style.display = 'none';
+            document.getElementById('smaqChargeAmount').value = '';
+        }
 
         init();
     </script>
