@@ -139,3 +139,4 @@ const handleReserve = async (showtime: Showtime) => {
 
 Para problemas o consultas, abrir un issue en el repositorio.
 # Trigger redeploy Sat Feb  7 19:41:25 -03 2026
+
