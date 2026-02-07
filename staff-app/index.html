@@ -1070,7 +1070,7 @@
             cursor: pointer;
         }
 
-        /* ==================== DRACMAS PANEL ==================== */
+        /* ==================== SMAQ PANEL ==================== */
         .dracma-search-panel {
             background: var(--cream-dark);
             border: 2px solid var(--black);
@@ -1667,7 +1667,7 @@
         </div>
     </div>
 
-    <!-- DRACMAS Screen -->
+    <!-- SMAQ Screen -->
     <div id="screen-dracmas" class="screen">
         <div class="section-title">CARGAR CONSUMO SMAQ</div>
 
@@ -1718,7 +1718,7 @@
             </div>
             <div class="balance-row">
                 <span class="balance-label">SALDO DISPONIBLE</span>
-                <span class="balance-amount" id="staffCitizenBalance">0.00 Ɖ</span>
+                <span class="balance-amount" id="staffCitizenBalance">0.00 Ƒ</span>
             </div>
         </div>
 
@@ -1736,15 +1736,15 @@
             <div class="calculation-preview" id="calculationPreview">
                 <div class="calc-row">
                     <span>Descuento:</span>
-                    <span id="dracmaDeduction">-0.00 Ɖ</span>
+                    <span id="dracmaDeduction">-0.00 Ƒ</span>
                 </div>
                 <div class="calc-row cashback">
                     <span>Cashback 10%:</span>
-                    <span id="dracmaCashback">+0.00 Ɖ</span>
+                    <span id="dracmaCashback">+0.00 Ƒ</span>
                 </div>
                 <div class="calc-row total">
                     <span>Saldo después:</span>
-                    <span id="balanceAfter">0.00 Ɖ</span>
+                    <span id="balanceAfter">0.00 Ƒ</span>
                 </div>
             </div>
 
@@ -1800,7 +1800,7 @@
                         <span class="value" id="membershipCurrentType"></span>
                     </div>
                     <div>
-                        <span class="label">Saldo DRACMAS:</span>
+                        <span class="label">Saldo SMAQ:</span>
                         <span class="value" id="membershipBalance"></span>
                     </div>
                 </div>
@@ -1812,10 +1812,10 @@
                     MEMBRESÍA</label>
                 <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                     <button class="membership-btn" id="btnStandard" onclick="selectMembershipPlan('standard')">
-                        STANDARD<br><small>$6.000 / 25 ₯</small>
+                        STANDARD<br><small>$6.000 / 25 Ƒ</small>
                     </button>
                     <button class="membership-btn" id="btnPremium" onclick="selectMembershipPlan('premium')">
-                        PREMIUM<br><small>$10.000 / 50 ₯</small>
+                        PREMIUM<br><small>$10.000 / 50 Ƒ</small>
                     </button>
                 </div>
                 <button id="approveMembershipBtn" class="approve-btn" onclick="approveMembership()" disabled>
@@ -2218,13 +2218,13 @@
         async function vlcPlayNow() { const input = document.getElementById('vlcMediaInput').value.trim(); if (!input) return; await vlcRequest({ command: 'in_play', input: input }); document.getElementById('vlcMediaInput').value = ''; setTimeout(vlcPoll, 500); }
         setTimeout(vlcInit, 500);
 
-        // ==================== DRACMAS PANEL ====================
+        // ==================== SMAQ PANEL ====================
         const SUPABASE_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co';
         let supabaseClient = null;
         let selectedCitizen = null;
         let searchTimeout = null;
 
-        // Initialize Supabase for DRACMAS
+        // Initialize Supabase for SMAQ
         async function initDracmaSupabase() {
             if (typeof supabase !== 'undefined') {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2269,7 +2269,7 @@
                                 <div class="name">${citizen.name || citizen.email.split('@')[0]}</div>
                                 <div class="email">${citizen.email}</div>
                             </div>
-                            <span class="balance-badge">${parseFloat(citizen.dracma_balance || 0).toFixed(2)} Ɖ</span>
+                            <span class="balance-badge">${parseFloat(citizen.dracma_balance || 0).toFixed(2)} Ƒ</span>
                         </div>
                     `).join('');
                 } catch (err) {
@@ -2292,7 +2292,7 @@
             document.getElementById('staffCitizenAvatar').src = citizen.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(citizen.name || citizen.email);
             document.getElementById('staffCitizenName').textContent = citizen.name || citizen.email.split('@')[0];
             document.getElementById('staffCitizenLevel').textContent = citizen.membership_type === 'premium' ? 'Ciudadano Premium' : 'Ciudadano Standard';
-            document.getElementById('staffCitizenBalance').textContent = parseFloat(citizen.dracma_balance || 0).toFixed(2) + ' Ɖ';
+            document.getElementById('staffCitizenBalance').textContent = parseFloat(citizen.dracma_balance || 0).toFixed(2) + ' Ƒ';
         }
 
         // Clear selected citizen
@@ -2307,17 +2307,17 @@
             document.getElementById('consumptionPrice').value = '';
         }
 
-        // Calculate DRACMAS from price (1 DRACMA = $1000)
+        // Calculate SMAQ from price (1 SMAQ = $1000)
         function calculateDracmas() {
             const price = parseFloat(document.getElementById('consumptionPrice').value) || 0;
-            const dracmaDeduction = price / 1000; // $1000 = 1 DRACMA
+            const dracmaDeduction = price / 1000; // $1000 = 1 SMAQ
             const cashback = dracmaDeduction * 0.10; // 10% cashback
             const currentBalance = parseFloat(selectedCitizen?.dracma_balance || 0);
             const balanceAfter = currentBalance - dracmaDeduction + cashback;
 
-            document.getElementById('dracmaDeduction').textContent = '-' + dracmaDeduction.toFixed(2) + ' Ɖ';
-            document.getElementById('dracmaCashback').textContent = '+' + cashback.toFixed(2) + ' Ɖ';
-            document.getElementById('balanceAfter').textContent = balanceAfter.toFixed(2) + ' Ɖ';
+            document.getElementById('dracmaDeduction').textContent = '-' + dracmaDeduction.toFixed(2) + ' Ƒ';
+            document.getElementById('dracmaCashback').textContent = '+' + cashback.toFixed(2) + ' Ƒ';
+            document.getElementById('balanceAfter').textContent = balanceAfter.toFixed(2) + ' Ƒ';
 
             // Enable/disable confirm button
             const confirmBtn = document.getElementById('confirmBtn');
@@ -2441,7 +2441,7 @@
             }
         }
 
-        // Reset DRACMA screen for new consumption
+        // Reset SMAQ screen for new consumption
         function resetDracmaScreen() {
             clearSelectedCitizen();
             document.getElementById('consumptionSuccess').style.display = 'none';
@@ -2509,7 +2509,7 @@
             document.getElementById('membershipName').textContent = citizen.name || citizen.email.split('@')[0];
             document.getElementById('membershipEmail').textContent = citizen.email;
             document.getElementById('membershipCurrentType').textContent = (citizen.membership_type || 'visitor').toUpperCase();
-            document.getElementById('membershipBalance').textContent = (citizen.dracma_balance || 0).toFixed(1) + ' ₯';
+            document.getElementById('membershipBalance').textContent = (citizen.dracma_balance || 0).toFixed(1) + ' Ƒ';
 
             // Reset plan selection
             document.getElementById('btnStandard').classList.remove('selected');
@@ -2537,7 +2537,7 @@
             try {
                 if (!supabaseClient) await initDracmaSupabase();
 
-                // Update citizen membership and add DRACMAS
+                // Update citizen membership and add SMAQ
                 const { error: updateError } = await supabaseClient
                     .from('citizens')
                     .update({
@@ -2548,7 +2548,7 @@
 
                 if (updateError) throw updateError;
 
-                // Record DRACMAS accreditation
+                // Record SMAQ accreditation
                 const { data: accreditResult, error: accreditError } = await supabaseClient.rpc('record_dracma_transaction', {
                     p_citizen_id: selectedMembershipCitizen.id,
                     p_type: 'acreditacion',
@@ -2604,7 +2604,7 @@
                 document.getElementById('membershipSuccessDetails').innerHTML =
                     `<strong>${selectedMembershipCitizen.name || selectedMembershipCitizen.email}</strong><br>` +
                     `Plan: ${selectedPlan.toUpperCase()}<br>` +
-                    `DRACMAS acreditados: +${dracmasToAdd} ₯`;
+                    `SMAQ acreditados: +${dracmasToAdd} Ƒ`;
 
             } catch (err) {
                 console.error('Error approving membership:', err);
