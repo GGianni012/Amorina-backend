@@ -4,6 +4,12 @@
  */
 
 export interface AmorinConfig {
+    // Supabase
+    supabase: {
+        url: string;
+        serviceKey: string; // service_role key for backend operations
+    };
+
     // MercadoPago
     mercadopago: {
         accessToken: string;
@@ -64,6 +70,10 @@ export function loadConfig(): AmorinConfig {
     }
 
     return {
+        supabase: {
+            url: process.env.SUPABASE_URL || 'https://iazjntvrxfyxlinkuiwx.supabase.co',
+            serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+        },
         mercadopago: {
             accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '',
             publicKey: process.env.MERCADOPAGO_PUBLIC_KEY || '',

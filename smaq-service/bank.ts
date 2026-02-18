@@ -2,16 +2,20 @@
  * SMAQ Bank Service
  * Central service for managing SMAQ token balances and transactions
  * 
+ * Source of truth: Supabase (citizens.dracma_balance + dracma_transactions)
+ * Google Sheets: async fire-and-forget log for admin visibility
+ * 
  * Exchange Rate: 1 SMAQ = $1000 ARS
  */
 
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SheetsClient } from '../google-sheets-service/sheets-client';
 import type { AmorinConfig } from '../core';
 
 // Constants
 export const SMAQ_EXCHANGE_RATE = 1000; // 1 SMAQ = 1000 ARS
-const SMAQ_SHEET_NAME = 'SMAQ_TRANSACTIONS';
-const SMAQ_HEADERS = [
+const SMAQ_LOG_SHEET = 'SMAQ_LOG';
+const SMAQ_LOG_HEADERS = [
     'Timestamp',
     'Email',
     'Type',        // 'credit' | 'charge'
@@ -19,7 +23,7 @@ const SMAQ_HEADERS = [
     'Source',      // 'compra' | 'suscripcion' | 'cashback' | 'regalo'
     'App',         // 'aquilea' | 'cine' | 'subs' | 'web'
     'Description',
-    'WalletObjectId' // For Google Wallet sync
+    'Balance After'
 ];
 
 export type TransactionType = 'credit' | 'charge';
@@ -51,56 +55,58 @@ export interface CreditResult {
 }
 
 export class SmaqBank {
-    private sheetsClient: SheetsClient;
-    private initialized = false;
+    private supabase: SupabaseClient;
+    private sheetsClient: SheetsClient | null;
+    private sheetsInitialized = false;
 
     constructor(config: AmorinConfig) {
-        this.sheetsClient = new SheetsClient(config);
-    }
+        // Supabase: source of truth
+        this.supabase = createClient(config.supabase.url, config.supabase.serviceKey);
 
-    /**
-     * Initialize the SMAQ sheet if it doesn't exist
-     */
-    private async ensureInitialized(): Promise<void> {
-        if (this.initialized) return;
-
-        const exists = await this.sheetsClient.sheetExists(SMAQ_SHEET_NAME);
-        if (!exists) {
-            await this.sheetsClient.createSheet(SMAQ_SHEET_NAME, SMAQ_HEADERS);
-            console.log(`Created ${SMAQ_SHEET_NAME} sheet`);
+        // Sheets: optional async log (fire-and-forget)
+        try {
+            this.sheetsClient = new SheetsClient(config);
+        } catch {
+            this.sheetsClient = null;
+            console.warn('Sheets client not configured — logging disabled');
         }
-        this.initialized = true;
     }
 
     /**
-     * Get current balance for a user
+     * Get current balance for a user from Supabase
      */
     async getBalance(email: string): Promise<number> {
-        await this.ensureInitialized();
+        const { data, error } = await this.supabase
+            .from('citizens')
+            .select('dracma_balance')
+            .eq('email', email.toLowerCase())
+            .single();
 
-        const data = await this.sheetsClient.readSheet(SMAQ_SHEET_NAME);
-
-        // Skip header, sum all transactions for this user
-        let balance = 0;
-        for (let i = 1; i < data.length; i++) {
-            const row = data[i];
-            if (row[1]?.toLowerCase() === email.toLowerCase()) {
-                const type = row[2] as TransactionType;
-                const amount = parseFloat(row[3]) || 0;
-
-                if (type === 'credit') {
-                    balance += amount;
-                } else if (type === 'charge') {
-                    balance -= amount;
-                }
-            }
+        if (error || !data) {
+            // User may not exist in citizens yet
+            console.warn(`No citizen found for ${email}:`, error?.message);
+            return 0;
         }
 
-        return Math.max(0, balance);
+        return parseFloat(data.dracma_balance) || 0;
     }
 
     /**
-     * Charge SMAQ from user account
+     * Get citizen ID by email (needed for record_dracma_transaction)
+     */
+    private async getCitizenId(email: string): Promise<string | null> {
+        const { data, error } = await this.supabase
+            .from('citizens')
+            .select('id')
+            .eq('email', email.toLowerCase())
+            .single();
+
+        if (error || !data) return null;
+        return data.id;
+    }
+
+    /**
+     * Charge SMAQ from user account using Supabase atomic transaction
      */
     async charge(
         email: string,
@@ -109,20 +115,45 @@ export class SmaqBank {
         description: string,
         walletObjectId?: string
     ): Promise<ChargeResult> {
-        await this.ensureInitialized();
-
-        // Check balance first
-        const currentBalance = await this.getBalance(email);
-        if (currentBalance < amount) {
+        const citizenId = await this.getCitizenId(email);
+        if (!citizenId) {
             return {
                 success: false,
-                newBalance: currentBalance,
-                error: `Saldo insuficiente. Tenés ${currentBalance} SMAQ, necesitás ${amount}.`
+                newBalance: 0,
+                error: `Usuario no encontrado: ${email}`
             };
         }
 
-        // Record transaction
-        const transaction: SmaqTransaction = {
+        // Use the atomic function with FOR UPDATE lock
+        const { data, error } = await this.supabase.rpc('record_dracma_transaction', {
+            p_citizen_id: citizenId,
+            p_type: 'consumo',
+            p_amount: -amount, // negative for charges
+            p_description: `[${app}] ${description}`
+        });
+
+        if (error) {
+            // Check if it's an insufficient balance error
+            if (error.message.includes('Insufficient')) {
+                const currentBalance = await this.getBalance(email);
+                return {
+                    success: false,
+                    newBalance: currentBalance,
+                    error: `Saldo insuficiente. Tenés ${currentBalance} SMAQ, necesitás ${amount}.`
+                };
+            }
+            return {
+                success: false,
+                newBalance: 0,
+                error: error.message
+            };
+        }
+
+        const newBalance = data?.[0]?.new_balance ?? (await this.getBalance(email));
+        const transactionId = data?.[0]?.transaction_id;
+
+        // Async log to Sheets (fire-and-forget)
+        this.logToSheets({
             timestamp: new Date().toISOString(),
             email: email.toLowerCase(),
             type: 'charge',
@@ -130,22 +161,17 @@ export class SmaqBank {
             source: 'consumo',
             app,
             description,
-            walletObjectId
-        };
-
-        await this.recordTransaction(transaction);
-
-        const newBalance = currentBalance - amount;
+        }, newBalance).catch(() => { });
 
         return {
             success: true,
             newBalance,
-            transactionId: `${Date.now()}`
+            transactionId
         };
     }
 
     /**
-     * Credit SMAQ to user account
+     * Credit SMAQ to user account using Supabase atomic transaction
      */
     async credit(
         email: string,
@@ -155,74 +181,82 @@ export class SmaqBank {
         description: string = '',
         walletObjectId?: string
     ): Promise<CreditResult> {
-        await this.ensureInitialized();
+        const citizenId = await this.getCitizenId(email);
+        if (!citizenId) {
+            return {
+                success: false,
+                newBalance: 0,
+                transactionId: undefined
+            };
+        }
 
-        const transaction: SmaqTransaction = {
+        const descText = description || `Acreditación de ${amount} SMAQ`;
+
+        const { data, error } = await this.supabase.rpc('record_dracma_transaction', {
+            p_citizen_id: citizenId,
+            p_type: 'acreditacion',
+            p_amount: amount, // positive for credits
+            p_description: `[${app}] ${descText}`
+        });
+
+        if (error) {
+            console.error('Credit error:', error);
+            return { success: false, newBalance: 0 };
+        }
+
+        const newBalance = data?.[0]?.new_balance ?? (await this.getBalance(email));
+        const transactionId = data?.[0]?.transaction_id;
+
+        // Async log to Sheets (fire-and-forget)
+        this.logToSheets({
             timestamp: new Date().toISOString(),
             email: email.toLowerCase(),
             type: 'credit',
             amount,
             source,
             app,
-            description: description || `Acreditación de ${amount} SMAQ`,
-            walletObjectId
-        };
-
-        await this.recordTransaction(transaction);
-
-        const newBalance = await this.getBalance(email);
+            description: descText,
+        }, newBalance).catch(() => { });
 
         return {
             success: true,
             newBalance,
-            transactionId: `${Date.now()}`
+            transactionId
         };
     }
 
     /**
-     * Get transaction history for a user
+     * Get transaction history for a user from Supabase
      */
     async getHistory(email: string, limit: number = 50): Promise<SmaqTransaction[]> {
-        await this.ensureInitialized();
+        const citizenId = await this.getCitizenId(email);
+        if (!citizenId) return [];
 
-        const data = await this.sheetsClient.readSheet(SMAQ_SHEET_NAME);
-        const transactions: SmaqTransaction[] = [];
+        const { data, error } = await this.supabase
+            .from('dracma_transactions')
+            .select('*')
+            .eq('citizen_id', citizenId)
+            .order('created_at', { ascending: false })
+            .limit(limit);
 
-        for (let i = 1; i < data.length; i++) {
-            const row = data[i];
-            if (row[1]?.toLowerCase() === email.toLowerCase()) {
-                transactions.push({
-                    timestamp: row[0],
-                    email: row[1],
-                    type: row[2] as TransactionType,
-                    amount: parseFloat(row[3]) || 0,
-                    source: row[4] as TransactionSource,
-                    app: row[5] as AppSource,
-                    description: row[6],
-                    walletObjectId: row[7]
-                });
-            }
-        }
+        if (error || !data) return [];
 
-        // Most recent first
-        return transactions.reverse().slice(0, limit);
+        return data.map(row => ({
+            timestamp: row.created_at,
+            email,
+            type: row.amount >= 0 ? 'credit' as TransactionType : 'charge' as TransactionType,
+            amount: Math.abs(parseFloat(row.amount)),
+            source: (row.type || 'consumo') as TransactionSource,
+            app: 'system' as AppSource,
+            description: row.description || '',
+        }));
     }
 
     /**
      * Get or create wallet object ID for a user
      */
     async getWalletObjectId(email: string): Promise<string | null> {
-        await this.ensureInitialized();
-
-        const data = await this.sheetsClient.readSheet(SMAQ_SHEET_NAME);
-
-        for (let i = 1; i < data.length; i++) {
-            const row = data[i];
-            if (row[1]?.toLowerCase() === email.toLowerCase() && row[7]) {
-                return row[7]; // Return first found walletObjectId
-            }
-        }
-
+        // This feature is not tied to balance — can remain as-is or be added to citizens table later
         return null;
     }
 
@@ -230,8 +264,8 @@ export class SmaqBank {
      * Link a wallet object ID to a user
      */
     async linkWallet(email: string, walletObjectId: string): Promise<void> {
-        // Credit 0 SMAQ just to record the wallet link
-        await this.credit(email, 0, 'regalo', 'system', 'Wallet vinculada', walletObjectId);
+        // Future: store in citizens table
+        await this.credit(email, 0, 'regalo', 'system', 'Wallet vinculada');
     }
 
     /**
@@ -249,19 +283,34 @@ export class SmaqBank {
     }
 
     /**
-     * Record a transaction to the sheet
+     * Fire-and-forget log to Google Sheets for admin visibility.
+     * If this fails, the Supabase transaction is already committed.
      */
-    private async recordTransaction(transaction: SmaqTransaction): Promise<void> {
-        await this.sheetsClient.appendRow(SMAQ_SHEET_NAME, [
-            transaction.timestamp,
-            transaction.email,
-            transaction.type,
-            transaction.amount,
-            transaction.source,
-            transaction.app,
-            transaction.description,
-            transaction.walletObjectId || ''
-        ]);
+    private async logToSheets(transaction: Omit<SmaqTransaction, 'walletObjectId'>, balanceAfter: number): Promise<void> {
+        if (!this.sheetsClient) return;
+
+        try {
+            if (!this.sheetsInitialized) {
+                const exists = await this.sheetsClient.sheetExists(SMAQ_LOG_SHEET);
+                if (!exists) {
+                    await this.sheetsClient.createSheet(SMAQ_LOG_SHEET, SMAQ_LOG_HEADERS);
+                }
+                this.sheetsInitialized = true;
+            }
+
+            await this.sheetsClient.appendRow(SMAQ_LOG_SHEET, [
+                transaction.timestamp,
+                transaction.email,
+                transaction.type,
+                transaction.amount,
+                transaction.source,
+                transaction.app,
+                transaction.description,
+                balanceAfter
+            ]);
+        } catch (err) {
+            console.warn('Sheets log failed (non-blocking):', err);
+        }
     }
 }
 
