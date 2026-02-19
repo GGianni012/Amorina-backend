@@ -11,17 +11,16 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { WebhookHandler } from '../../mercadopago-service/index.js';
-import { SmaqsBankService, PurchaseIntentService, WalletSyncService } from '../../smaq-service/index.js';
-import { GoogleSheetsClient } from '../../google-sheets-service/index.js';
+import { WebhookHandler, type WebhookPayload } from '../../mercadopago-service/index.js';
+import { SmaqBank, PurchaseIntentService, WalletSyncService } from '../../smaq-service';
+import { loadConfig } from '../../core';
 
-// Setup Supabase (optional, only if env vars present)
+// Standalone Supabase client for add_credits RPC (outside SmaqBank scope)
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = (supabaseUrl && supabaseKey)
     ? createClient(supabaseUrl, supabaseKey)
     : null;
-import { loadConfig } from '../../core';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // MercadoPago expects 200 OK quickly
@@ -91,7 +90,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             intent.userEmail,
             intent.smaqTopup,
             'compra',
-            'mercadopago',
+            'system',
             `Top-up de ${intent.smaqTopup} SMAQ via MercadoPago`,
             intent.walletObjectId
         );
