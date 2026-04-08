@@ -452,7 +452,7 @@ async function loadBootstrap() {
     state.floors = data.floors || [];
     state.menu = data.menu || [];
     state.activeFloorCode = data.activeFloorCode || state.floors[0]?.code || null;
-    state.tables = data.tables || [];
+    state.tables = filterTablesByFloor(data.tables || [], state.activeFloorCode);
 
     await Promise.all([
         loadTableDirectory(),
@@ -485,7 +485,7 @@ async function refreshEverything() {
 async function loadTables(floorCode = state.activeFloorCode) {
     state.activeFloorCode = floorCode;
     const data = await fetchJSON(`${API_BASE}/tables?floorCode=${encodeURIComponent(floorCode)}`);
-    state.tables = data.tables || [];
+    state.tables = filterTablesByFloor(data.tables || [], floorCode);
     renderShell();
 }
 
@@ -521,6 +521,11 @@ function renderPanelStats() {
         10
     );
     els.panelStats.textContent = `${floorCount} pisos - ${tablesPerFloor} mesas por piso - ${tableCount} mesas activas`;
+}
+
+function filterTablesByFloor(tables, floorCode) {
+    if (!floorCode) return tables;
+    return tables.filter((table) => table.floorCode === floorCode);
 }
 
 function renderFloorTabs() {
