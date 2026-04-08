@@ -222,7 +222,7 @@ function bindAppEvents() {
         state.paymentDrawerOpen = !state.paymentDrawerOpen;
         renderCheckoutPanel(details);
         if (state.paymentDrawerOpen) {
-            focusPaymentDrawerOnMobile();
+            focusPaymentDrawer();
         }
     });
 
@@ -860,7 +860,7 @@ function renderSessionActions(details) {
     document.getElementById('openCheckoutBtn')?.addEventListener('click', () => {
         state.paymentDrawerOpen = true;
         renderCheckoutPanel(details);
-        focusPaymentDrawerOnMobile();
+        focusPaymentDrawer();
     });
 
     const markAttendedBtn = document.getElementById('markAttendedBtn');
@@ -1450,11 +1450,22 @@ function setMetaCard(element, title, body) {
     `;
 }
 
-function focusPaymentDrawerOnMobile() {
-    if (typeof window === 'undefined' || window.innerWidth > 740 || els.paymentDrawer.classList.contains('hidden')) return;
+function focusPaymentDrawer() {
+    if (typeof window === 'undefined' || els.paymentDrawer.classList.contains('hidden')) return;
 
     window.requestAnimationFrame(() => {
-        els.paymentDrawer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const container = els.tableModalSheet;
+        if (container && container.contains(els.paymentDrawer)) {
+            const containerRect = container.getBoundingClientRect();
+            const drawerRect = els.paymentDrawer.getBoundingClientRect();
+            const isFullyVisible = drawerRect.top >= containerRect.top && drawerRect.bottom <= containerRect.bottom;
+            if (!isFullyVisible) {
+                els.paymentDrawer.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+            }
+            return;
+        }
+
+        els.paymentDrawer.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     });
 }
 
