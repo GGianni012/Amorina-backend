@@ -1,6 +1,6 @@
 /**
- * SMAQ Top-Up Checkout Service
- * Creates MercadoPago preferences for purchasing SMAQS
+ * ABA Top-Up Checkout Service
+ * Creates MercadoPago preferences for purchasing ABA
  */
 
 import { MercadoPagoConfig, Preference } from 'mercadopago';
@@ -28,7 +28,7 @@ export class TopupCheckoutService {
     }
 
     /**
-     * Create a MercadoPago preference for SMAQ top-up
+     * Create a MercadoPago preference for ABA top-up
      */
     async createTopupPreference(params: {
         intentId: string;
@@ -45,10 +45,10 @@ export class TopupCheckoutService {
             body: {
                 items: [
                     {
-                        id: `SMAQ-${params.intentId}`,
-                        title: `${params.smaqAmount} SMAQ`,
+                        id: `ABA-${params.intentId}`,
+                        title: `${params.smaqAmount} ABA`,
                         description: params.productDescription ||
-                            `Compra de ${params.smaqAmount} SMAQ para usar en Amorina`,
+                            `Compra de ${params.smaqAmount} ABA para usar en Amorina`,
                         category_id: 'virtual_goods',
                         quantity: 1,
                         currency_id: 'ARS',

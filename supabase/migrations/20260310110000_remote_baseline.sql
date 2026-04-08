@@ -1,0 +1,4 @@
+-- Placeholder para alinear el historial remoto de Supabase con este repo.
+-- La version 20260310110000 ya existe aplicada en el proyecto remoto.
+-- Este archivo no hace cambios; solo permite que `supabase db push` avance
+-- con las migraciones nuevas versionadas localmente.

@@ -1,8 +1,8 @@
 /**
- * SMAQ API - Unified Top-Up/Purchase Endpoint
+ * ABA API - Unified Top-Up/Purchase Endpoint
  * POST /api/smaq/topup
  * 
- * This is the main entry point for all SMAQ purchases.
+ * This is the main entry point for all ABA purchases.
  * It checks balance and either:
  * 1. Charges directly if balance is sufficient
  * 2. Creates a purchase intent + MP checkout if balance is insufficient
@@ -23,9 +23,9 @@ interface TopupRequest {
     userName?: string;
     productType: ProductType;
     productData: Record<string, any>;
-    smaqPrice: number;              // Price in SMAQ for the product
+    smaqPrice: number;              // Price in ABA for the product
     walletObjectId?: string;
-    suggestExtraSmaqs?: number;     // Suggest buying extra SMAQS (default: 0)
+    suggestExtraSmaqs?: number;     // Suggest buying extra ABA (default: 0)
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -61,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'Tipo de producto requerido' });
         }
         if (!smaqPrice || smaqPrice <= 0) {
-            return res.status(400).json({ error: 'Precio SMAQ inválido' });
+            return res.status(400).json({ error: 'Precio ABA inválido' });
         }
 
         const config = loadConfig();
@@ -99,7 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     success: true,
                     action: 'charged',
                     newBalance: chargeResult.newBalance,
-                    message: `Compra exitosa. Nuevo saldo: ${chargeResult.newBalance} SMAQ`
+                    message: `Compra exitosa. Nuevo saldo: ${chargeResult.newBalance} ABA`
                 });
             } else {
                 return res.status(400).json({
@@ -131,7 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             userEmail: email,
             userName,
             smaqAmount: smaqToTopup,
-            productDescription: `${smaqToTopup} SMAQ para comprar ${productType}`
+            productDescription: `${smaqToTopup} ABA para comprar ${productType}`
         });
 
         // Store MP preference ID in intent
@@ -148,11 +148,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             checkoutUrl: checkoutService.isSandbox()
                 ? checkout.sandboxInitPoint
                 : checkout.initPoint,
-            message: `Necesitás ${smaqNeeded} SMAQ más. Redirigiendo a MercadoPago...`
+            message: `Necesitás ${smaqNeeded} ABA más. Redirigiendo a MercadoPago...`
         });
 
     } catch (error) {
-        console.error('SMAQ topup error:', error);
+        console.error('ABA topup error:', error);
         return res.status(500).json({
             error: error instanceof Error ? error.message : 'Error interno'
         });

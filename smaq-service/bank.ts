@@ -1,19 +1,19 @@
 /**
- * SMAQ Bank Service
- * Central service for managing SMAQ token balances and transactions
+ * ABA Bank Service
+ * Central service for managing ABA token balances and transactions
  * 
  * Source of truth: Supabase (citizens.dracma_balance + dracma_transactions)
  * Google Sheets: async fire-and-forget log for admin visibility
  * 
- * Exchange Rate: 1 SMAQ = $1000 ARS
+ * Exchange Rate: 1 ABA = $1000 ARS
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { SheetsClient } from '../google-sheets-service/sheets-client';
-import type { AmorinConfig } from '../core';
+import { SheetsClient } from '../google-sheets-service/sheets-client.js';
+import type { AmorinConfig } from '../core/config.js';
 
 // Constants
-export const SMAQ_EXCHANGE_RATE = 1000; // 1 SMAQ = 1000 ARS
+export const SMAQ_EXCHANGE_RATE = 1000; // 1 ABA = 1000 ARS
 const SMAQ_LOG_SHEET = 'SMAQ_LOG';
 const SMAQ_LOG_HEADERS = [
     'Timestamp',
@@ -52,6 +52,15 @@ export interface CreditResult {
     success: boolean;
     newBalance: number;
     transactionId?: string;
+    error?: string;
+}
+
+export interface NfcLookupResult {
+    citizenId: string;
+    email: string;
+    name: string;
+    balance: number;
+    tagId: string;
 }
 
 export class SmaqBank {
@@ -106,7 +115,7 @@ export class SmaqBank {
     }
 
     /**
-     * Charge SMAQ from user account using Supabase atomic transaction
+     * Charge ABA from user account using Supabase atomic transaction
      */
     async charge(
         email: string,
@@ -139,7 +148,7 @@ export class SmaqBank {
                 return {
                     success: false,
                     newBalance: currentBalance,
-                    error: `Saldo insuficiente. Tenés ${currentBalance} SMAQ, necesitás ${amount}.`
+                    error: `Saldo insuficiente. Tenés ${currentBalance} ABA, necesitás ${amount}.`
                 };
             }
             return {
@@ -171,7 +180,7 @@ export class SmaqBank {
     }
 
     /**
-     * Credit SMAQ to user account using Supabase atomic transaction
+     * Credit ABA to user account using Supabase atomic transaction
      */
     async credit(
         email: string,
@@ -186,11 +195,12 @@ export class SmaqBank {
             return {
                 success: false,
                 newBalance: 0,
-                transactionId: undefined
+                transactionId: undefined,
+                error: `Usuario no encontrado: ${email}`
             };
         }
 
-        const descText = description || `Acreditación de ${amount} SMAQ`;
+        const descText = description || `Acreditación de ${amount} ABA`;
 
         const { data, error } = await this.supabase.rpc('record_dracma_transaction', {
             p_citizen_id: citizenId,
@@ -201,7 +211,7 @@ export class SmaqBank {
 
         if (error) {
             console.error('Credit error:', error);
-            return { success: false, newBalance: 0 };
+            return { success: false, newBalance: 0, error: error.message };
         }
 
         const newBalance = data?.[0]?.new_balance ?? (await this.getBalance(email));
@@ -253,6 +263,64 @@ export class SmaqBank {
     }
 
     /**
+     * Lookup citizen by NFC tag ID
+     */
+    async lookupByNfcTag(tagId: string): Promise<NfcLookupResult | null> {
+        const { data, error } = await this.supabase
+            .from('citizens')
+            .select('id, email, name, dracma_balance, nfc_tag_id')
+            .eq('nfc_tag_id', tagId.toUpperCase())
+            .single();
+
+        if (error || !data) return null;
+
+        return {
+            citizenId: data.id,
+            email: data.email,
+            name: data.name || data.email.split('@')[0],
+            balance: parseFloat(data.dracma_balance) || 0,
+            tagId: data.nfc_tag_id,
+        };
+    }
+
+    /**
+     * Link an NFC tag to a citizen account
+     */
+    async linkNfcTag(email: string, tagId: string): Promise<{ success: boolean; error?: string }> {
+        const normalizedTag = tagId.toUpperCase();
+
+        // Check if tag is already linked to someone else
+        const existing = await this.lookupByNfcTag(normalizedTag);
+        if (existing && existing.email !== email.toLowerCase()) {
+            return {
+                success: false,
+                error: `Este tag ya está vinculado a ${existing.email}`
+            };
+        }
+
+        // Find citizen by email
+        const citizenId = await this.getCitizenId(email);
+        if (!citizenId) {
+            return {
+                success: false,
+                error: `Usuario no encontrado: ${email}`
+            };
+        }
+
+        // Link the tag
+        const { error } = await this.supabase
+            .from('citizens')
+            .update({ nfc_tag_id: normalizedTag })
+            .eq('id', citizenId);
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        return { success: true };
+    }
+
+    /**
      * Get or create wallet object ID for a user
      */
     async getWalletObjectId(email: string): Promise<string | null> {
@@ -269,14 +337,14 @@ export class SmaqBank {
     }
 
     /**
-     * Convert ARS to SMAQ
+     * Convert ARS to ABA
      */
     static arsToSmaq(ars: number): number {
         return Math.floor(ars / SMAQ_EXCHANGE_RATE);
     }
 
     /**
-     * Convert SMAQ to ARS
+     * Convert ABA to ARS
      */
     static smaqToArs(smaq: number): number {
         return smaq * SMAQ_EXCHANGE_RATE;

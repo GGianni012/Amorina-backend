@@ -6,7 +6,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { WebhookHandler, type WebhookPayload } from '../../mercadopago-service';
 import { ReservationSyncService } from '../../google-sheets-service';
-import { QRGenerator } from '../../qr-service';
+import { PosService } from '../../pos-service/service.js';
 import { loadConfig } from '../../core';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -19,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const config = loadConfig();
         const webhookHandler = new WebhookHandler(config);
         const reservationSync = new ReservationSyncService(config);
-        const qrGenerator = new QRGenerator();
+        const posService = new PosService(config);
 
         // Parse webhook payload
         const payload = req.body as WebhookPayload;
@@ -30,6 +30,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!paymentInfo) {
             // Not a payment notification, acknowledge anyway
             return res.status(200).json({ received: true, processed: false });
+        }
+
+        if (paymentInfo.externalReference?.startsWith('POS-')) {
+            const details = await posService.reconcileMercadoPagoWebhook(paymentInfo);
+            return res.status(200).json({
+                received: true,
+                processed: true,
+                scope: 'pos',
+                paymentId: paymentInfo.id,
+                status: paymentInfo.status,
+                sessionId: details?.session?.id || null,
+            });
         }
 
         // Update reservation status in Google Sheets

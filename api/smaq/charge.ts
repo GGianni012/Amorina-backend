@@ -1,5 +1,5 @@
 /**
- * SMAQ API - Charge Endpoint
+ * ABA API - Charge Endpoint
  * POST /api/smaq/charge
  * 
  * Body: { email, amount, app, description }
@@ -8,26 +8,29 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { SmaqBank, WalletSyncService, type AppSource } from '../../smaq-service';
+import { SmaqBank, type AppSource } from '../../smaq-service';
 import { loadConfig } from '../../core';
+import {
+    handleOptions,
+    normalizeEmail,
+    parsePositiveAmount,
+    resolveEmailFromWalletObjectId,
+    setCors,
+    syncWalletBalanceIfPresent
+} from './_endpoint-utils';
 
 interface ChargeRequest {
-    email: string;
-    amount: number;
+    email?: string;
+    amount: number | string;
     app: AppSource;
-    description: string;
+    description?: string;
     walletObjectId?: string;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    setCors(res, 'POST, OPTIONS');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    if (handleOptions(req, res)) return;
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -35,12 +38,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const { email, amount, app, description, walletObjectId } = req.body as ChargeRequest;
+        const parsedAmount = parsePositiveAmount(amount);
 
-        // Validation - need either email OR walletObjectId
+        // Validation - need either email OR walletObjectId.
         if (!email && !walletObjectId) {
             return res.status(400).json({ error: 'Email o walletObjectId requerido' });
         }
-        if (!amount || amount <= 0) {
+        if (!parsedAmount) {
             return res.status(400).json({ error: 'Monto inválido' });
         }
         if (!app) {
@@ -50,29 +54,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const config = loadConfig();
         const smaqBank = new SmaqBank(config);
 
-        // If we have walletObjectId but no email, try to resolve email from wallet
-        let userEmail = email;
+        let userEmail = normalizeEmail(email);
         if (!userEmail && walletObjectId) {
-            // For now, extract from objectId or lookup in database
-            // The walletObjectId format is: 3388000000023078410.SMAQ_1234567890
-            // We'll need to store email<->walletObjectId mapping
-            // For now, use a fallback lookup via the wallet service
-            try {
-                const walletSync = new WalletSyncService({
-                    issuerId: process.env.GOOGLE_WALLET_ISSUER_ID || '',
-                    serviceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
-                    serviceAccountKey: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || ''
-                });
-                const passData = await walletSync.getPass(walletObjectId);
-                if (passData?.textModulesData) {
-                    const emailModule = passData.textModulesData.find((m: any) => m.id === 'email');
-                    if (emailModule) {
-                        userEmail = emailModule.body;
-                    }
-                }
-            } catch (walletLookupError) {
-                console.error('Wallet lookup failed:', walletLookupError);
-            }
+            userEmail = await resolveEmailFromWalletObjectId(walletObjectId);
         }
 
         if (!userEmail) {
@@ -84,9 +68,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Attempt charge
         const result = await smaqBank.charge(
             userEmail,
-            amount,
+            parsedAmount,
             app,
-            description || `Consumo de ${amount} SMAQ`,
+            description || `Consumo de ${parsedAmount} ABA`,
             walletObjectId
         );
 
@@ -98,29 +82,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
         }
 
-        // Sync to Google Wallet if objectId provided
-        if (walletObjectId && process.env.GOOGLE_WALLET_ISSUER_ID) {
-            try {
-                const walletSync = new WalletSyncService({
-                    issuerId: process.env.GOOGLE_WALLET_ISSUER_ID,
-                    serviceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
-                    serviceAccountKey: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || ''
-                });
-                await walletSync.updateBalance(walletObjectId, result.newBalance);
-            } catch (walletError) {
-                console.error('Wallet sync failed (non-blocking):', walletError);
-            }
-        }
+        await syncWalletBalanceIfPresent(walletObjectId, result.newBalance);
 
         return res.status(200).json({
             success: true,
             newBalance: result.newBalance,
             transactionId: result.transactionId,
-            message: `Cobro exitoso. Nuevo saldo: ${result.newBalance} SMAQ`
+            message: `Cobro exitoso. Nuevo saldo: ${result.newBalance} ABA`
         });
 
     } catch (error) {
-        console.error('SMAQ charge error:', error);
+        console.error('ABA charge error:', error);
         return res.status(500).json({
             error: error instanceof Error ? error.message : 'Error interno'
         });

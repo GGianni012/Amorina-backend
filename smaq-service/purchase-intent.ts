@@ -1,6 +1,6 @@
 /**
- * SMAQ Purchase Intent Service
- * Stores pending purchase intents that will be executed after SMAQ top-up
+ * ABA Purchase Intent Service
+ * Stores pending purchase intents that will be executed after ABA top-up
  */
 
 import { SheetsClient } from '../google-sheets-service/sheets-client';
@@ -16,8 +16,8 @@ export interface PurchaseIntent {
     userName?: string;
     productType: ProductType;
     productData: Record<string, any>;  // Product-specific data (showtimeId, plan, etc)
-    smaqRequired: number;              // SMAQS needed for the purchase
-    smaqTopup: number;                 // SMAQS being purchased (may include extra)
+    smaqRequired: number;              // ABA needed for the purchase
+    smaqTopup: number;                 // ABA being purchased (may include extra)
     arsAmount: number;                 // Amount in ARS for MP checkout
     walletObjectId?: string;           // Google Wallet pass ID if available
     mpPreferenceId?: string;           // MercadoPago preference ID
@@ -33,8 +33,8 @@ const INTENTS_HEADERS = [
     'Nombre',
     'Tipo Producto',
     'Datos Producto',
-    'SMAQ Requeridos',
-    'SMAQ Topup',
+    'ABA Requeridos',
+    'ABA Topup',
     'Monto ARS',
     'Wallet Object ID',
     'MP Preference ID',
@@ -89,7 +89,7 @@ export class PurchaseIntentService {
     private generateIntentId(): string {
         const timestamp = Date.now().toString(36);
         const random = Math.random().toString(36).substring(2, 6);
-        return `SMAQ-${timestamp}-${random}`.toUpperCase();
+        return `ABA-${timestamp}-${random}`.toUpperCase();
     }
 
     /**
@@ -107,7 +107,7 @@ export class PurchaseIntentService {
     }): Promise<PurchaseIntent> {
         await this.ensureSheet();
 
-        const SMAQ_RATE = 1000; // 1 SMAQ = $1000 ARS
+        const SMAQ_RATE = 1000; // 1 ABA = $1000 ARS
         const arsAmount = params.smaqTopup * SMAQ_RATE;
 
         const intent: PurchaseIntent = {

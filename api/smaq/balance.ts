@@ -1,5 +1,5 @@
 /**
- * SMAQ API - Balance Endpoint
+ * ABA API - Balance Endpoint
  * GET /api/smaq/balance?email=user@example.com
  * 
  * Balance from Supabase (citizens.dracma_balance) — single source of truth
@@ -38,11 +38,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             success: true,
             email,
             balance,
-            balanceDisplay: `${balance} SMAQ`,
+            balanceDisplay: `${balance} ABA`,
         });
 
     } catch (error) {
-        console.error('SMAQ balance error:', error);
+        console.error('ABA balance error:', error);
         return res.status(500).json({
             error: error instanceof Error ? error.message : 'Error interno'
         });

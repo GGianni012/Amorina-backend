@@ -1,6 +1,6 @@
 /**
- * SMAQ Service - Module Index
- * Re-exports all SMAQ-related functionality
+ * ABA Service - Module Index
+ * Re-exports all ABA-related functionality
  */
 
 export { SmaqBank, SMAQ_EXCHANGE_RATE } from './bank';
@@ -10,7 +10,8 @@ export type {
     TransactionSource,
     AppSource,
     ChargeResult,
-    CreditResult
+    CreditResult,
+    NfcLookupResult
 } from './bank';
 
 export { WalletSyncService } from './wallet-sync';

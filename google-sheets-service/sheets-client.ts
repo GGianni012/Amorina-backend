@@ -4,7 +4,7 @@
  */
 
 import { google, sheets_v4 } from 'googleapis';
-import type { AmorinConfig } from '../core';
+import type { AmorinConfig } from '../core/config.js';
 
 export class SheetsClient {
     private sheets: sheets_v4.Sheets;

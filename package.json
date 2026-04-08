@@ -5,8 +5,11 @@
     "type": "module",
     "scripts": {
         "test": "vitest",
+        "test:mobile": "playwright test scripts/mobile-smoke.spec.mjs --reporter=line --workers=1",
         "build": "tsc",
-        "dev:scanner": "cd scanner-app && npm run dev"
+        "dev:scanner": "cd scanner-app && npm run dev",
+        "migrate:smaq-balances": "node scripts/migrate-smaq-transactions-to-citizens.mjs",
+        "audit:smaq-log": "node scripts/audit-smaq-log.mjs"
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.95.3",
@@ -16,6 +19,7 @@
         "uuid": "^9.0.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.51.1",
         "@types/node": "^20.0.0",
         "@types/qrcode": "^1.5.5",
         "@types/uuid": "^9.0.0",

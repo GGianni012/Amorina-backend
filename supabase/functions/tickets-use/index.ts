@@ -73,7 +73,9 @@ const DIAS = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', '
 
 // Update ticket status in Google Sheets - searches across all date sheets
 async function markTicketAsUsed(ticketCode: string, searchMode: boolean = false): Promise<{ success: boolean, message: string, status?: string, movieInfo?: string, detail?: { sheet: string, row: number } }> {
-    const spreadsheetId = Deno.env.get('GOOGLE_RESERVATIONS_SHEET_ID') || '16uYInoI-Ap44zjj3tMwX9i8Yh1SYR0zGSshovibOVqs';
+    const spreadsheetId = Deno.env.get('GOOGLE_RESERVATIONS_SHEET_ID')
+        || Deno.env.get('GOOGLE_SHEETS_ID')
+        || '16uYInoI-Ap44zjj3tMwX9i8Yh1SYR0zGSshovibOVqs';
     const clientEmail = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_EMAIL');
     const privateKey = Deno.env.get('GOOGLE_PRIVATE_KEY')?.replace(/\\n/g, '\n');
 

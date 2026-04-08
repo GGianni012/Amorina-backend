@@ -1070,7 +1070,7 @@
             cursor: pointer;
         }
 
-        /* ==================== SMAQ PANEL ==================== */
+        /* ==================== ABA PANEL ==================== */
         .dracma-search-panel {
             background: var(--cream-dark);
             border: 2px solid var(--black);
@@ -1667,15 +1667,15 @@
         </div>
     </div>
 
-    <!-- SMAQ Screen -->
+    <!-- ABA Screen -->
     <div id="screen-dracmas" class="screen">
-        <div class="section-title">CARGAR CONSUMO SMAQ</div>
+        <div class="section-title">CARGAR CONSUMO ABA</div>
 
-        <!-- SMAQ Quick Charge via QR (Google Wallet) -->
+        <!-- ABA Quick Charge via QR (Google Wallet) -->
         <div class="manual-input" style="background: var(--black); color: white; margin-bottom: 16px;">
             <label style="color: var(--red);">⚡ COBRO RÁPIDO (Escanear Wallet)</label>
             <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                <input type="number" id="smaqChargeAmount" placeholder="SMAQ"
+                <input type="number" id="smaqChargeAmount" placeholder="ABA"
                     style="flex: 1; background: #1a1a1a; color: white; border-color: #333; text-align: center;">
                 <button onclick="startSmaqScanner()" style="background: var(--red); min-width: 120px;">
                     📷 ESCANEAR
@@ -1800,7 +1800,7 @@
                         <span class="value" id="membershipCurrentType"></span>
                     </div>
                     <div>
-                        <span class="label">Saldo SMAQ:</span>
+                        <span class="label">Saldo ABA:</span>
                         <span class="value" id="membershipBalance"></span>
                     </div>
                 </div>
@@ -1870,7 +1870,7 @@
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v12M9 9h6M9 15h6" />
             </svg>
-            SMAQ
+            ABA
         </div>
         <div class="nav-item" onclick="switchScreen('ciudadanos')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -2218,13 +2218,13 @@
         async function vlcPlayNow() { const input = document.getElementById('vlcMediaInput').value.trim(); if (!input) return; await vlcRequest({ command: 'in_play', input: input }); document.getElementById('vlcMediaInput').value = ''; setTimeout(vlcPoll, 500); }
         setTimeout(vlcInit, 500);
 
-        // ==================== SMAQ PANEL ====================
+        // ==================== ABA PANEL ====================
         const SUPABASE_URL = 'https://iazjntvrxfyxlinkuiwx.supabase.co';
         let supabaseClient = null;
         let selectedCitizen = null;
         let searchTimeout = null;
 
-        // Initialize Supabase for SMAQ
+        // Initialize Supabase for ABA
         async function initDracmaSupabase() {
             if (typeof supabase !== 'undefined') {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2307,10 +2307,10 @@
             document.getElementById('consumptionPrice').value = '';
         }
 
-        // Calculate SMAQ from price (1 SMAQ = $1000)
+        // Calculate ABA from price (1 ABA = $1000)
         function calculateDracmas() {
             const price = parseFloat(document.getElementById('consumptionPrice').value) || 0;
-            const dracmaDeduction = price / 1000; // $1000 = 1 SMAQ
+            const dracmaDeduction = price / 1000; // $1000 = 1 ABA
             const cashback = dracmaDeduction * 0.10; // 10% cashback
             const currentBalance = parseFloat(selectedCitizen?.dracma_balance || 0);
             const balanceAfter = currentBalance - dracmaDeduction + cashback;
@@ -2441,7 +2441,7 @@
             }
         }
 
-        // Reset SMAQ screen for new consumption
+        // Reset ABA screen for new consumption
         function resetDracmaScreen() {
             clearSelectedCitizen();
             document.getElementById('consumptionSuccess').style.display = 'none';
@@ -2537,7 +2537,7 @@
             try {
                 if (!supabaseClient) await initDracmaSupabase();
 
-                // Update citizen membership and add SMAQ
+                // Update citizen membership and add ABA
                 const { error: updateError } = await supabaseClient
                     .from('citizens')
                     .update({
@@ -2548,7 +2548,7 @@
 
                 if (updateError) throw updateError;
 
-                // Record SMAQ accreditation
+                // Record ABA accreditation
                 const { data: accreditResult, error: accreditError } = await supabaseClient.rpc('record_dracma_transaction', {
                     p_citizen_id: selectedMembershipCitizen.id,
                     p_type: 'acreditacion',
@@ -2604,7 +2604,7 @@
                 document.getElementById('membershipSuccessDetails').innerHTML =
                     `<strong>${selectedMembershipCitizen.name || selectedMembershipCitizen.email}</strong><br>` +
                     `Plan: ${selectedPlan.toUpperCase()}<br>` +
-                    `SMAQ acreditados: +${dracmasToAdd} Ƒ`;
+                    `ABA acreditados: +${dracmasToAdd} Ƒ`;
 
             } catch (err) {
                 console.error('Error approving membership:', err);
@@ -2626,14 +2626,14 @@
         // Initialize Supabase on load
         initDracmaSupabase();
 
-        // ==================== SMAQ QUICK CHARGE (Google Wallet) ====================
+        // ==================== ABA QUICK CHARGE (Google Wallet) ====================
         const SMAQ_API_URL = '/api/smaq'; // Will be proxied through Vercel
         let smaqScanner = null;
 
         function startSmaqScanner() {
             const amount = parseInt(document.getElementById('smaqChargeAmount').value);
             if (!amount || amount <= 0) {
-                alert('Ingresá el monto en SMAQ a cobrar');
+                alert('Ingresá el monto en ABA a cobrar');
                 return;
             }
 
@@ -2650,7 +2650,7 @@
                 },
                 (error) => { /* Ignore scan errors */ }
             ).catch(err => {
-                console.error('SMAQ Scanner error:', err);
+                console.error('ABA Scanner error:', err);
                 alert('Error al iniciar cámara');
                 stopSmaqScanner();
             });
@@ -2669,7 +2669,7 @@
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `
                 <div class="spinner" style="border-color: #333; border-top-color: var(--red);"></div>
-                <div>Procesando cobro de ${amount} SMAQ...</div>
+                <div>Procesando cobro de ${amount} ABA...</div>
             `;
 
             try {
@@ -2688,7 +2688,7 @@
                         walletObjectId: walletObjectId,
                         amount: amount,
                         app: 'aquilea',
-                        description: `Consumo en barra - ${amount} SMAQ`
+                        description: `Consumo en barra - ${amount} ABA`
                     })
                 });
 
@@ -2701,8 +2701,8 @@
                             COBRO EXITOSO
                         </div>
                         <div style="color: #888;">
-                            ${amount} SMAQ debitados<br>
-                            Nuevo saldo: <strong>${result.newBalance} SMAQ</strong>
+                            ${amount} ABA debitados<br>
+                            Nuevo saldo: <strong>${result.newBalance} ABA</strong>
                         </div>
                         <button onclick="resetSmaqCharge()" 
                             style="margin-top: 16px; padding: 12px 24px; background: var(--success); color: white; border: none; font-family: 'Bebas Neue', sans-serif;">
@@ -2723,7 +2723,7 @@
                     `;
                 }
             } catch (err) {
-                console.error('SMAQ charge error:', err);
+                console.error('ABA charge error:', err);
                 resultDiv.innerHTML = `
                     <div style="font-size: 48px; color: var(--danger);">✗</div>
                     <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; margin: 12px 0;">

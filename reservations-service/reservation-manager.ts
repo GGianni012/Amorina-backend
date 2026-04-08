@@ -78,7 +78,7 @@ export class ReservationManager {
         }
 
         // Calculate price
-        const originalPrice = parseInt(input.showtime.price, 10) || this.config.pricing.basePrice;
+        const originalPrice = Number(input.showtime.price) || this.config.pricing.basePrice;
         const pricePaid = calculatePrice(originalPrice, input.subscriptionType);
 
         // Generate ticket code for QR

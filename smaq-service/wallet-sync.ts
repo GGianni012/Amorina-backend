@@ -1,6 +1,6 @@
 /**
- * SMAQ Wallet Sync Service
- * Synchronizes SMAQ balances with Google Wallet passes
+ * ABA Wallet Sync Service
+ * Synchronizes ABA balances with Google Wallet passes
  */
 
 import { google } from 'googleapis';
@@ -57,7 +57,7 @@ export class WalletSyncService {
             const textModules = current.data.textModulesData || [];
             const updatedModules = textModules.map((module: any) => {
                 if (module.id === 'balance') {
-                    return { ...module, body: `${newBalance} SMAQ` };
+                    return { ...module, body: `${newBalance} ABA` };
                 }
                 return module;
             });
@@ -70,7 +70,7 @@ export class WalletSyncService {
                 }
             });
 
-            console.log(`✅ Wallet updated: ${objectId} -> ${newBalance} SMAQ`);
+            console.log(`✅ Wallet updated: ${objectId} -> ${newBalance} ABA`);
             return true;
 
         } catch (error) {
@@ -124,7 +124,7 @@ export class WalletSyncService {
                 },
                 hexBackgroundColor: '#1a1a2e',
                 textModulesData: [
-                    { header: 'SALDO', body: `${user.balance} SMAQ`, id: 'balance' },
+                    { header: 'SALDO', body: `${user.balance} ABA`, id: 'balance' },
                     { header: 'EMAIL', body: user.email, id: 'email' }
                 ],
                 barcode: {

@@ -1,10 +1,10 @@
 /**
- * SMAQ API - Webhook Handler for MercadoPago Top-Up Payments
+ * ABA API - Webhook Handler for MercadoPago Top-Up Payments
  * POST /api/smaq/webhook
  * 
  * Processes payment confirmations from MercadoPago:
  * 1. Validates the payment
- * 2. Credits SMAQ to user
+ * 2. Credits ABA to user
  * 3. Executes the pending purchase intent
  * 4. Updates Google Wallet balance
  */
@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).end();
     }
 
-    console.log('📥 SMAQ Webhook received:', JSON.stringify(req.body));
+    console.log('📥 ABA Webhook received:', JSON.stringify(req.body));
 
     try {
         const config = loadConfig();
@@ -58,10 +58,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).end();
         }
 
-        // Check if this is a SMAQ top-up (external_reference starts with "SMAQ-")
+        // Check if this is a ABA top-up (external_reference starts with "ABA-")
         const externalRef = paymentInfo.externalReference;
-        if (!externalRef || !externalRef.startsWith('SMAQ-')) {
-            console.log('Not a SMAQ top-up payment');
+        if (!externalRef || !externalRef.startsWith('ABA-')) {
+            console.log('Not a ABA top-up payment');
             return res.status(200).end();
         }
 
@@ -84,18 +84,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // 1. Mark intent as paid
         await intentService.markPaid(intent.id);
 
-        // 2. Credit SMAQ to user
+        // 2. Credit ABA to user
         const smaqBank = new SmaqBank(config);
         const creditResult = await smaqBank.credit(
             intent.userEmail,
             intent.smaqTopup,
             'compra',
             'system',
-            `Top-up de ${intent.smaqTopup} SMAQ via MercadoPago`,
+            `Top-up de ${intent.smaqTopup} ABA via MercadoPago`,
             intent.walletObjectId
         );
 
-        console.log(`💰 Credited ${intent.smaqTopup} SMAQ. New balance: ${creditResult.newBalance}`);
+        console.log(`💰 Credited ${intent.smaqTopup} ABA. New balance: ${creditResult.newBalance}`);
 
         // 3. Execute the original purchase
         const chargeResult = await smaqBank.charge(
@@ -123,7 +123,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
                     if (error) {
                         console.error('Error adding credits:', error);
-                        // Don't fail the whole webhook provided SMAQ was charged
+                        // Don't fail the whole webhook provided ABA was charged
                     } else {
                         console.log(`✅ Credits added: ${intent.productData.credits}`);
                     }
@@ -143,21 +143,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         serviceAccountKey: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || ''
                     });
                     await walletSync.updateBalance(intent.walletObjectId, chargeResult.newBalance);
-                    console.log(`📱 Wallet synced: ${chargeResult.newBalance} SMAQ`);
+                    console.log(`📱 Wallet synced: ${chargeResult.newBalance} ABA`);
                 } catch (e) {
                     console.error('Wallet sync failed:', e);
                 }
             }
         } else {
             console.error(`❌ Purchase failed: ${chargeResult.error}`);
-            // Intent stays as 'paid' - user has SMAQ but purchase failed
+            // Intent stays as 'paid' - user has ABA but purchase failed
             // This needs manual intervention
         }
 
         return res.status(200).end();
 
     } catch (error) {
-        console.error('SMAQ webhook error:', error);
+        console.error('ABA webhook error:', error);
         // Always return 200 to MP to avoid retries
         return res.status(200).end();
     }

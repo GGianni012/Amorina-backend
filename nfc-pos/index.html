@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aquilea 57 — NFC POS</title>
+    <meta name="description" content="Sistema de cobro NFC para socios de Aquilea 57">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- LOADING STATE -->
+        <div id="screen-loading" class="screen active">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Buscando socio...</p>
+        </div>
+
+        <!-- NOT LINKED STATE -->
+        <div id="screen-unlinked" class="screen">
+            <div class="card">
+                <div class="icon-badge icon-warning">⚠️</div>
+                <h1>Tag no vinculado</h1>
+                <p class="subtitle" id="unlinked-tag-id"></p>
+                <div class="form-group">
+                    <label for="link-email">Email del socio</label>
+                    <input type="email" id="link-email" placeholder="socio@email.com" autocomplete="email"
+                        inputmode="email">
+                </div>
+                <button id="btn-link" class="btn btn-primary" onclick="linkTag()">
+                    🔗 Vincular tag
+                </button>
+                <div id="link-error" class="error-msg hidden"></div>
+            </div>
+        </div>
+
+        <!-- CITIZEN FOUND STATE -->
+        <div id="screen-citizen" class="screen">
+            <div class="card citizen-card">
+                <div class="citizen-header">
+                    <div class="avatar" id="citizen-avatar"></div>
+                    <div class="citizen-info">
+                        <h1 id="citizen-name"></h1>
+                        <p class="citizen-email" id="citizen-email"></p>
+                    </div>
+                </div>
+                <div class="balance-display">
+                    <span class="balance-label">Balance</span>
+                    <span class="balance-amount" id="citizen-balance"></span>
+                    <span class="balance-currency">ABA</span>
+                </div>
+            </div>
+
+            <div class="card charge-card">
+                <h2>Cobrar consumo</h2>
+                <div class="amount-input-group">
+                    <span class="amount-prefix">◆</span>
+                    <input type="number" id="charge-amount" placeholder="0" min="1" step="1" inputmode="numeric">
+                    <span class="amount-suffix">ABA</span>
+                </div>
+                <div class="quick-amounts">
+                    <button class="chip" onclick="setAmount(1)">1</button>
+                    <button class="chip" onclick="setAmount(2)">2</button>
+                    <button class="chip" onclick="setAmount(5)">5</button>
+                    <button class="chip" onclick="setAmount(10)">10</button>
+                    <button class="chip" onclick="setAmount(20)">20</button>
+                </div>
+                <button id="btn-charge" class="btn btn-danger" onclick="processCharge()">
+                    💳 Cobrar
+                </button>
+                <div id="charge-error" class="error-msg hidden"></div>
+            </div>
+        </div>
+
+        <!-- SUCCESS STATE -->
+        <div id="screen-success" class="screen">
+            <div class="card success-card">
+                <div class="icon-badge icon-success">✅</div>
+                <h1>¡Cobro exitoso!</h1>
+                <div class="success-details">
+                    <div class="detail-row">
+                        <span>Socio</span>
+                        <span id="success-name"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Cobrado</span>
+                        <span id="success-amount" class="amount-charged"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Nuevo saldo</span>
+                        <span id="success-balance" class="new-balance"></span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="resetToScan()">
+                    📱 Nuevo cobro
+                </button>
+            </div>
+        </div>
+
+        <!-- ERROR STATE -->
+        <div id="screen-error" class="screen">
+            <div class="card error-card">
+                <div class="icon-badge icon-error">❌</div>
+                <h1>Error</h1>
+                <p id="error-message"></p>
+                <button class="btn btn-primary" onclick="resetToScan()">
+                    🔄 Reintentar
+                </button>
+            </div>
+        </div>
+
+        <!-- NO TAG STATE -->
+        <div id="screen-no-tag" class="screen">
+            <div class="card">
+                <div class="icon-badge">📱</div>
+                <h1>NFC POS</h1>
+                <p class="subtitle">Acercá un tag NFC para empezar</p>
+                <p class="hint">O ingresá el ID del tag manualmente:</p>
+                <div class="form-group">
+                    <input type="text" id="manual-tag" placeholder="AQ-00001" autocomplete="off">
+                </div>
+                <button class="btn btn-primary" onclick="manualLookup()">
+                    🔍 Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <span>Aquilea 57 · NFC POS v1.0</span>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

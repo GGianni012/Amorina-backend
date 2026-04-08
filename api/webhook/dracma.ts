@@ -6,7 +6,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { DracmaSyncService, type DracmaTransaction } from '../../google-sheets-service/dracma-sync';
-import { getConfig } from '../../core';
+import { loadConfig } from '../../core';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Only allow POST
@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const config = getConfig();
+        const config = loadConfig();
         const dracmaSync = new DracmaSyncService(config);
 
         // Supabase webhook payload format

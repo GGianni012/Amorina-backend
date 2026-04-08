@@ -81,7 +81,9 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
 
 async function writeToSheet(metadata: any) {
     // Use the reservations sheet ID (different from schedule sheet)
-    const spreadsheetId = Deno.env.get('GOOGLE_RESERVATIONS_SHEET_ID') || '16uYInoI-Ap44zjj3tMwX9i8Yh1SYR0zGSshovibOVqs';
+    const spreadsheetId = Deno.env.get('GOOGLE_RESERVATIONS_SHEET_ID')
+        || Deno.env.get('GOOGLE_SHEETS_ID')
+        || '16uYInoI-Ap44zjj3tMwX9i8Yh1SYR0zGSshovibOVqs';
     const clientEmail = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_EMAIL');
     const privateKey = Deno.env.get('GOOGLE_PRIVATE_KEY')?.replace(/\\n/g, '\n');
 

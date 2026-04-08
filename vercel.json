@@ -2,29 +2,250 @@
     "version": 2,
     "builds": [
         {
-            "src": "api/**/*.ts",
-            "use": "@vercel/node"
+            "src": "api/checkout.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
         },
         {
-            "src": "scanner-app/package.json",
-            "use": "@vercel/static-build",
+            "src": "api/pos.ts",
+            "use": "@vercel/node",
             "config": {
-                "distDir": "dist"
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
             }
+        },
+        {
+            "src": "api/smaq/balance.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/smaq/charge.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/smaq/credit.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/smaq/nfc.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/smaq/topup.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/smaq/webhook.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/tickets/use.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/tickets/validate.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/webhook/dracma.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "api/webhook/mercadopago.ts",
+            "use": "@vercel/node",
+            "config": {
+                "includeFiles": [
+                    "core/**",
+                    "pos-service/**",
+                    "smaq-service/**",
+                    "google-sheets-service/**",
+                    "mercadopago-service/**",
+                    "reservations-service/**",
+                    "qr-service/**",
+                    "auth-service/**"
+                ]
+            }
+        },
+        {
+            "src": "nfc-pos/**",
+            "use": "@vercel/static"
+        },
+        {
+            "src": "staff-app-v2/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
-            "src": "/api/(.*)",
-            "dest": "/api/$1"
+            "src": "/api/pos/(.*)",
+            "dest": "/api/pos.ts?route=$1"
         },
         {
-            "src": "/scanner/(.*)",
-            "dest": "/scanner-app/dist/$1"
+            "src": "/api/pos",
+            "dest": "/api/pos.ts"
         },
         {
-            "src": "/scanner",
-            "dest": "/scanner-app/dist/index.html"
+            "src": "/api/smaq/(.*)",
+            "dest": "/api/smaq/$1.ts"
+        },
+        {
+            "src": "/api/(checkout)",
+            "dest": "/api/$1.ts"
+        },
+        {
+            "src": "/api/webhook/(.*)",
+            "dest": "/api/webhook/$1.ts"
+        },
+        {
+            "src": "/api/tickets/(.*)",
+            "dest": "/api/tickets/$1.ts"
+        },
+        {
+            "src": "/nfc-pos/(.*)",
+            "dest": "/nfc-pos/$1"
+        },
+        {
+            "src": "/nfc-pos",
+            "dest": "/nfc-pos/index.html"
+        },
+        {
+            "src": "/staff-app-v2/(.*)",
+            "dest": "/staff-app-v2/$1"
+        },
+        {
+            "src": "/staff-app-v2",
+            "dest": "/staff-app-v2/index.html"
+        },
+        {
+            "src": "/staff",
+            "dest": "/staff-app-v2/index.html"
         }
     ]
 }

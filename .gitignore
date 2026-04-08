@@ -32,7 +32,10 @@ npm-debug.log*
 
 # Test coverage
 coverage/
+artifacts/
+test-results/
 
 # Temp files
 *.tmp
 *.temp
+.vercel

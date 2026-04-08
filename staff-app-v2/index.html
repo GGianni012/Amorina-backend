@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aquilea 57 Staff V2</title>
+    <meta name="theme-color" content="#d32f2f">
+    <link rel="stylesheet" href="https://use.typekit.net/dlk3pev.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/staff-app-v2/styles.css">
+</head>
+
+<body>
+    <div class="cinema-bg" aria-hidden="true">
+        <div class="spotlight spotlight-left"></div>
+        <div class="spotlight spotlight-right"></div>
+        <div class="film-strip film-strip-left"></div>
+        <div class="film-strip film-strip-right"></div>
+    </div>
+
+    <div id="loginGate" class="login-gate">
+        <div class="login-layout">
+            <section class="login-brand-panel">
+                <div class="brand-topline">
+                    <div class="eyebrow">Aquilea 57</div>
+                    <div class="brand-slash">Salon / Caja / ABA</div>
+                </div>
+
+                <div class="brand-headline">
+                    <h1>Cabina de operacion</h1>
+                    <p>Un tablero vivo para mozos, caja y operacion. Pisos, comandas y cobros con la misma estetica del cinebar.</p>
+                </div>
+
+                <div class="brand-poster">
+                    <div class="poster-ticket">TURNO ABIERTO</div>
+                    <div class="poster-copy">
+                        <strong>Modo staff</strong>
+                        <span>Mesas en tiempo real, ABA, transferencia y cierre desde un mismo puesto.</span>
+                    </div>
+                </div>
+
+                <div id="loginUserHints" class="login-user-hints"></div>
+            </section>
+
+            <section class="login-card">
+                <div class="eyebrow">Acceso interno</div>
+                <h2>Entrar al turno</h2>
+                <p>Login basico local con usuarios hardcodeados. Sirve para operar rapido mientras despues endurecemos seguridad real.</p>
+
+                <form id="loginForm" class="login-form">
+                    <label class="field-stack">
+                        <span>Usuario</span>
+                        <select id="staffUserInput"></select>
+                    </label>
+
+                    <label class="field-stack">
+                        <span>Contrasena</span>
+                        <input id="staffPasswordInput" type="password" placeholder="Clave del turno" autocomplete="current-password" required>
+                    </label>
+
+                    <div id="loginError" class="login-note hidden"></div>
+                    <button id="loginSubmitBtn" class="primary-btn" type="submit">Entrar al staff</button>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div id="staffAppShell" class="app-shell hidden">
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="eyebrow">Aquilea 57</div>
+                <h1>Cabina staff</h1>
+                <p class="header-subtitle">Mesas por piso, popup operativo por mesa y cobros republicanos en tiempo real.</p>
+            </div>
+            <div class="header-tools">
+                <div id="staffIdentity" class="staff-identity hidden">
+                    <div id="staffDisplayName" class="staff-name"></div>
+                    <div id="staffDisplayRole" class="staff-role"></div>
+                </div>
+                <button id="refreshBtn" class="ghost-btn">Actualizar</button>
+                <button id="logoutBtn" class="ghost-btn">Salir</button>
+            </div>
+        </header>
+
+        <main class="app-grid">
+            <section class="tables-panel">
+                <div class="panel-crest">
+                    <span class="panel-kicker">Mesas del piso</span>
+                    <strong id="panelStats">3 pisos - 15 mesas por piso - estado en vivo</strong>
+                </div>
+                <div class="panel-top">
+                    <div id="floorTabs" class="floor-tabs"></div>
+                </div>
+                <div id="tablesGrid" class="tables-grid"></div>
+                <div class="support-stack footer-stack">
+                    <section class="block support-block">
+                        <div class="block-head">
+                            <h3>Buscador de mesas</h3>
+                            <p>Busca cualquier mesa por numero, piso o token y salta directo al popup operativo.</p>
+                        </div>
+                        <label class="search-shell" for="tableSearch">
+                            <span>Buscar mesa</span>
+                            <input type="search" id="tableSearch" placeholder="Mesa 7, AQ-P1-12, Piso 2...">
+                        </label>
+                        <div id="tableSearchResults" class="search-results"></div>
+                    </section>
+
+                    <section class="block support-block">
+                        <div class="block-head">
+                            <h3>Contador operativo</h3>
+                            <p>Abiertas, cerradas y total del turno en un solo bloque.</p>
+                        </div>
+                        <div id="financeStrip" class="finance-strip counter-strip"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="tableModal" class="table-modal hidden" aria-hidden="true">
+        <div class="table-modal-backdrop" data-close-modal></div>
+        <div class="table-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTableLabel">
+            <div class="modal-shell">
+                <div class="panel-crest panel-crest-light modal-crest">
+                    <div class="modal-title">
+                        <div class="eyebrow" id="detailFloor">PB</div>
+                        <h2 id="detailTableLabel">Mesa</h2>
+                        <p id="detailClaimToken" class="mono"></p>
+                    </div>
+                    <div class="modal-head-actions">
+                        <div id="detailStatus" class="status-pill">Libre</div>
+                        <button id="closeTableModalBtn" class="ghost-btn" type="button">Cerrar</button>
+                    </div>
+                </div>
+
+                <div id="detailContent" class="detail-content">
+                    <div class="modal-alert-row">
+                        <div id="detailAttentionBadge" class="attention-badge hidden"></div>
+                        <div id="detailAttentionMeta" class="modal-meta-card"></div>
+                        <div id="detailOrderSource" class="modal-meta-card"></div>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <span>Total</span>
+                            <strong id="summaryTotal">$0</strong>
+                        </div>
+                        <div class="summary-card">
+                            <span>Pagado</span>
+                            <strong id="summaryPaid">$0</strong>
+                        </div>
+                        <div class="summary-card">
+                            <span>Debe</span>
+                            <strong id="summaryDue">$0</strong>
+                        </div>
+                        <div class="summary-card">
+                            <span>Invitados</span>
+                            <strong id="summaryGuests">0</strong>
+                        </div>
+                    </div>
+
+                    <div id="sessionActions" class="session-actions"></div>
+
+                    <section class="block">
+                        <div class="block-head">
+                            <h3>Comanda rapida</h3>
+                            <p>La carta abre al tocar la mesa y queda ligada a ese `tableId` real.</p>
+                        </div>
+
+                        <div id="draftSummary" class="draft-summary"></div>
+                        <div id="menuCatalog" class="menu-catalog quick-menu-catalog"></div>
+
+                        <div class="draft-actions">
+                            <button id="clearDraftBtn" class="ghost-btn" type="button">Limpiar borrador</button>
+                            <button id="sendDraftBtn" class="primary-btn" type="button">Enviar comanda</button>
+                        </div>
+
+                        <div class="manual-head">
+                            <h4>Carga manual</h4>
+                            <p>Para productos fuera de carta, ajustes o excepciones.</p>
+                        </div>
+
+                        <form id="manualItemForm" class="manual-form">
+                            <input type="text" name="itemName" placeholder="Nombre del item" required>
+                            <input type="number" name="unitPriceArs" placeholder="Precio ARS" min="0" step="100" required>
+                            <input type="number" name="quantity" placeholder="Cant." min="1" value="1" required>
+                            <input type="text" name="note" placeholder="Nota opcional">
+                            <button type="submit" class="primary-btn">Agregar manual</button>
+                        </form>
+                    </section>
+
+                    <section class="block">
+                        <div class="block-head block-head-split">
+                            <div>
+                                <h3>Cobrar pedido</h3>
+                                <p id="checkoutHint">Elegi una mesa con saldo para abrir las opciones de cobro.</p>
+                            </div>
+                            <button id="toggleCheckoutBtn" class="primary-btn" type="button">Cobrar pedido</button>
+                        </div>
+
+                        <div id="paymentDrawer" class="payment-drawer hidden">
+                            <div class="payment-grid">
+                                <div class="payment-card">
+                                    <h4>Carnet NFC ABA</h4>
+                                    <input type="text" id="nfcTagInput" placeholder="AQ-00001">
+                                    <button id="chargeNfcBtn" class="danger-btn" type="button">Cobrar NFC</button>
+                                </div>
+
+                                <div class="payment-card">
+                                    <h4>Transferencia</h4>
+                                    <button id="createTransferBtn" class="primary-btn" type="button">Generar alias</button>
+                                    <div id="transferBox" class="transfer-box hidden"></div>
+                                </div>
+
+                                <div class="payment-card">
+                                    <h4>MercadoPago +10%</h4>
+                                    <button id="createMercadoPagoBtn" class="danger-btn" type="button">Generar checkout</button>
+                                    <div id="mercadoPagoBox" class="transfer-box hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="block">
+                        <div class="block-head">
+                            <h3>Pedidos</h3>
+                            <p>Cliente express y comandera staff conviven en la misma mesa.</p>
+                        </div>
+                        <div id="ordersList" class="orders-list"></div>
+                    </section>
+
+                    <section class="block">
+                        <div class="block-head">
+                            <h3>Pagos</h3>
+                            <p>Historial y estados de cobro de ambos modos de compra.</p>
+                        </div>
+                        <div id="paymentsList" class="payments-list"></div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="/staff-app-v2/app.js"></script>
+</body>
+
+</html>
