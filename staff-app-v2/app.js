@@ -515,7 +515,12 @@ function renderPanelStats() {
 
     const floorCount = state.floors.length || 3;
     const tableCount = state.tableDirectory.length || state.tables.length;
-    els.panelStats.textContent = `${floorCount} pisos - 15 mesas por piso - ${tableCount} mesas activas`;
+    const tablesPerFloor = Math.max(
+        ...state.floors.map((floor) => state.tableDirectory.filter((table) => table.floorCode === floor.code).length),
+        state.tables.length,
+        10
+    );
+    els.panelStats.textContent = `${floorCount} pisos - ${tablesPerFloor} mesas por piso - ${tableCount} mesas activas`;
 }
 
 function renderFloorTabs() {
@@ -586,7 +591,7 @@ function renderTables() {
             >
                 <div class="table-card-top">
                     <div>
-                        <h3>${escapeHtml(table.label)}</h3>
+                        <h3>${escapeHtml(displayTableLabel(table))}</h3>
                         <div class="table-meta">${escapeHtml(labelForTableState(table))}</div>
                         <div class="table-meta">${escapeHtml(tableContextMeta(table))}</div>
                     </div>
@@ -630,7 +635,7 @@ function renderSearchResults() {
     els.tableSearchResults.innerHTML = results.map((table) => `
         <button class="search-result-card" data-jump-table="${table.tableId}" data-jump-floor="${table.floorCode || ''}">
             <div>
-                <strong>${escapeHtml(table.label)}</strong>
+                <strong>${escapeHtml(displayTableLabel(table))}</strong>
                 <div class="payment-meta">${escapeHtml(table.floorName || table.floorCode || 'Sala')}</div>
                 <div class="payment-meta">${escapeHtml(table.claimToken)}</div>
             </div>
@@ -652,7 +657,7 @@ function renderSearchResults() {
 
 function matchesSearch(table) {
     const haystack = [
-        table.label,
+        displayTableLabel(table),
         String(table.tableNumber || ''),
         table.claimToken,
         table.floorName,
@@ -730,7 +735,7 @@ function renderModal() {
     }
 
     els.detailFloor.textContent = details.table.floorName || details.table.floorCode || 'Piso';
-    els.detailTableLabel.textContent = details.table.label;
+    els.detailTableLabel.textContent = displayTableLabel(details.table);
     els.detailClaimToken.textContent = `Token mesa: ${details.table.claimToken}`;
     els.detailStatus.textContent = labelForTableState(details.table);
     els.summaryTotal.textContent = formatMoney(details.table.subtotalArs);
@@ -838,7 +843,7 @@ function renderSessionActions(details) {
     ];
 
     if (due > 0) {
-        actions.unshift(`<button class="danger-btn" id="openCheckoutBtn" type="button" ${disabledAttr('charge_payments')}>Cobrar pedido de ${escapeHtml(details.table.label)}</button>`);
+        actions.unshift(`<button class="danger-btn" id="openCheckoutBtn" type="button" ${disabledAttr('charge_payments')}>Cobrar pedido de ${escapeHtml(displayTableLabel(details.table))}</button>`);
     }
 
     els.sessionActions.innerHTML = actions.join('');
@@ -905,15 +910,16 @@ function renderCheckoutPanel(details) {
     if (!canCharge) {
         state.paymentDrawerOpen = false;
         els.checkoutHint.textContent = 'La mesa ya esta saldada. Si queres, ya podes cerrarla.';
-        els.toggleCheckoutBtn.textContent = `Mesa ${details.table.label} saldada`;
+        els.toggleCheckoutBtn.textContent = `Mesa ${displayTableLabel(details.table)} saldada`;
         els.paymentDrawer.classList.add('hidden');
         renderTransferBox(null);
         renderMercadoPagoBox(null);
         return;
     }
 
-    els.checkoutHint.textContent = `Cobra ${formatMoney(details.table.balanceDueArs)} de ${details.table.label} con ABA NFC, transferencia o MercadoPago (+10%).`;
-    els.toggleCheckoutBtn.textContent = `Cobrar pedido de ${details.table.label}`;
+    const tableLabel = displayTableLabel(details.table);
+    els.checkoutHint.textContent = `Cobra ${formatMoney(details.table.balanceDueArs)} de ${tableLabel} con ABA NFC, transferencia o MercadoPago (+10%).`;
+    els.toggleCheckoutBtn.textContent = `Cobrar pedido de ${tableLabel}`;
     els.paymentDrawer.classList.toggle('hidden', !state.paymentDrawerOpen);
 }
 
@@ -1031,7 +1037,6 @@ function renderMenuCatalog(details) {
                         <div class="catalog-card quick-product-card ${quantity > 0 ? 'selected' : ''}">
                             <div class="quick-product-copy">
                                 <h5>${escapeHtml(item.name)}</h5>
-                                <p>${escapeHtml(item.description || 'Disponible para sumar a la cuenta')}</p>
                                 <div class="payment-meta">${formatMoney(item.unitPriceArs)}</div>
                             </div>
                             <div class="quick-qty-controls">
@@ -1350,6 +1355,16 @@ function labelForTableState(table) {
     if (table.sessionStatus === 'checkout_requested') return 'mozo solicitado';
     if (table.sessionStatus === 'paid' || table.uiState === 'pagada') return 'pagada';
     return 'ocupada';
+}
+
+function displayTableLabel(table) {
+    const number = Number(table?.tableNumber || 0);
+    if (number > 0) {
+        return String(Math.trunc(number)).padStart(2, '0');
+    }
+
+    const label = String(table?.label || '').trim();
+    return label || '00';
 }
 
 function orderStatusLabel(status) {

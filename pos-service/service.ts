@@ -44,6 +44,8 @@ interface ChargeAbaInput {
     metadata?: Record<string, unknown>;
 }
 
+const MAX_TABLES_PER_FLOOR = 10;
+
 export class PosConflictError extends Error {
     readonly statusCode = 409;
 
@@ -108,7 +110,7 @@ export class PosService {
 
         const itemMap = new Map<string, PosMenuItem[]>();
         for (const row of items || []) {
-            const item = mapMenuItem(row);
+            const item = mapMenuItem(row, audience === 'staff');
             const key = item.categoryId || '__uncategorized__';
             const bucket = itemMap.get(key) || [];
             bucket.push(item);
@@ -131,6 +133,7 @@ export class PosService {
             .from('pos_table_live_status')
             .select('*')
             .eq('is_active', true)
+            .lte('table_number', MAX_TABLES_PER_FLOOR)
             .order('table_number', { ascending: true });
 
         if (floorId) {
@@ -1092,7 +1095,8 @@ export class PosService {
         let query = this.supabase
             .from('pos_tables')
             .select('id')
-            .eq('is_active', true);
+            .eq('is_active', true)
+            .lte('table_number', MAX_TABLES_PER_FLOOR);
 
         if (floorId) {
             query = query.eq('floor_id', floorId);
@@ -1416,7 +1420,7 @@ function mapTableSummary(row: any): PosTableSummary {
     return {
         tableId: row.table_id,
         floorId: row.floor_id,
-        label: row.label,
+        label: formatTableLabel(row.table_number, row.label),
         tableNumber: Number(row.table_number),
         claimToken: row.claim_token,
         seats: Number(row.seats),
@@ -1452,14 +1456,14 @@ function mapMenuCategory(row: any): PosMenuCategory {
     };
 }
 
-function mapMenuItem(row: any): PosMenuItem {
+function mapMenuItem(row: any, hideDescription = false): PosMenuItem {
     return {
         id: row.id,
         categoryId: row.category_id || null,
         categoryCode: row.category_code || null,
         code: row.code || null,
         name: row.name,
-        description: row.description || null,
+        description: hideDescription ? null : row.description || null,
         unitPriceArs: roundMoney(row.unit_price_ars),
         imageUrl: row.image_url || null,
         isAvailable: Boolean(row.is_available),
@@ -1583,6 +1587,16 @@ function toNumber(value: unknown): number {
 
 function roundMoney(value: unknown): number {
     return Math.round(toNumber(value) * 100) / 100;
+}
+
+function formatTableLabel(tableNumber: unknown, fallbackLabel?: string | null): string {
+    const normalizedNumber = Math.max(0, Math.trunc(toNumber(tableNumber)));
+    if (normalizedNumber > 0) {
+        return String(normalizedNumber).padStart(2, '0');
+    }
+
+    const normalizedLabel = normalizeNullableText(fallbackLabel || undefined);
+    return normalizedLabel || '00';
 }
 
 function getBuenosAiresDayRange() {
