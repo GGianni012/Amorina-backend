@@ -225,12 +225,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const sessionId = parseNullableString(req.body?.sessionId);
                 if (!sessionId) return badRequest(res, 'sessionId requerido');
 
-                const payment = await service.createMercadoPagoCheckoutPayment(
-                    sessionId,
-                    parseNullableString(req.body?.createdByAuthId)
-                );
-
-                return res.status(200).json({ success: true, payment });
+                try {
+                    const payment = await service.createMercadoPagoCheckoutPayment(
+                        sessionId,
+                        parseNullableString(req.body?.createdByAuthId)
+                    );
+                    return res.status(200).json({ success: true, payment });
+                } catch (mpError) {
+                    const message = mpError instanceof Error ? mpError.message : 'Error de MercadoPago';
+                    console.error('MercadoPago checkout error:', mpError);
+                    return res.status(502).json({ success: false, error: `MercadoPago: ${message}` });
+                }
             }
 
             case 'payments/confirm-transfer': {

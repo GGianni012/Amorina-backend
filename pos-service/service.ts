@@ -753,6 +753,10 @@ export class PosService {
             throw new Error(intentError?.message || 'No se pudo iniciar el cobro con MercadoPago');
         }
 
+        if (!this.config.mercadopago.accessToken) {
+            throw new Error('MercadoPago access token no configurado en el servidor');
+        }
+
         const preference = new Preference(new MercadoPagoConfig({
             accessToken: this.config.mercadopago.accessToken,
         }));
